@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Lesson Quiz Playground</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(99, 102, 241, 0.12), transparent 35%),
+                radial-gradient(circle at top right, rgba(16, 185, 129, 0.08), transparent 30%),
+                #020617;
+        }
+
+        code,
+        pre,
+        input.font-mono,
+        textarea.font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.78);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+        }
+
+        .question-card {
+            transition: all 0.2s ease;
+        }
+
+        .question-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(99, 102, 241, 0.4);
+        }
+
+        .option-label {
+            transition: all 0.18s ease;
+        }
+
+        .option-label:has(input:checked) {
+            border-color: rgb(99, 102, 241);
+            background: rgba(99, 102, 241, 0.12);
+            box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.15);
+        }
+
+        .option-label:hover {
+            border-color: rgba(148, 163, 184, 0.5);
+            background: rgba(30, 41, 59, 0.7);
+        }
+
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #020617;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 999px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+
+<body class="text-slate-100 min-h-screen">
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+
+        <!-- HEADER -->
+        <header class="mb-8">
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-5">
+
+                <div>
+                    <div
+                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-4">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        JWT Protected • Lesson Quiz API
+                    </div>
+
+                    <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+                        Quiz Playground
+                    </h1>
+
+                    <p class="text-slate-400 mt-2 max-w-2xl text-sm sm:text-base">
+                        Generate, attempt and evaluate AI-powered quizzes for individual lessons.
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <div class="px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-400">
+                        <span class="text-emerald-400">●</span>
+                        Backend: <span id="backendStatus">Not checked</span>
+                    </div>
+
+                    <button id="toggleRawBtn"
+                        class="px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-xs text-slate-300 transition">
+                        JSON Inspector
+                    </button>
+                </div>
+            </div>
+        </header>
+
+
+        <!-- CONFIGURATION -->
+        <section class="glass border border-slate-800 rounded-3xl p-5 sm:p-7 shadow-2xl mb-7">
+
+            <div class="flex items-center gap-3 mb-6">
+                <div
+                    class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center">
+                    ⚙️
+                </div>
+
+                <div>
+                    <h2 class="font-bold text-white">Quiz Configuration</h2>
+                    <p class="text-xs text-slate-500">
+                        Enter the lesson and your JWT token
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+                <!-- BASE URL -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-2">
+                        Backend Base URL
+                    </label>
+
+                    <input id="baseUrlInput" type="text" value="http://localhost:5000"
+                        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white font-mono outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10" />
+                </div>
+
+
+                <!-- COURSE SLUG -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-2">
+                        Course Slug
+                    </label>
+
+                    <input id="slugInput" type="text"
+                        value="modern-javascript-es6-features-asynchronous-architecture-and-nodejs-internals"
+                        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white font-mono outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10" />
+                </div>
+
+
+                <!-- LESSON ID -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 mb-2">
+                        Lesson ID
+                    </label>
+
+                    <input id="lessonIdInput" type="text" placeholder="Example: lesson-1"
+                        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white font-mono outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10" />
+
+                    <p class="text-[11px] text-slate-500 mt-2">
+                        The <code class="text-slate-400">lessonId</code> from your Course document.
+                    </p>
+                </div>
+
+
+                <!-- JWT -->
+                <div class="lg:col-span-2">
+
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="text-xs font-semibold text-slate-400">
+                            JWT Bearer Token
+                        </label>
+
+                        <span id="tokenStatus" class="text-[11px] text-slate-500">
+                            Not set
+                        </span>
+                    </div>
+
+                    <textarea id="tokenInput" rows="3" placeholder="Paste your JWT token here..."
+                        class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-xs text-white font-mono resize-y outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10"></textarea>
+
+                    <div class="flex flex-wrap items-center justify-between gap-2 mt-2">
+                        <span class="text-[11px] text-slate-500">
+                            Sent automatically as
+                            <code class="text-slate-400">
+                                Authorization: Bearer &lt;token&gt;
+                            </code>
+                        </span>
+
+                        <button id="clearTokenBtn" class="text-[11px] text-rose-400 hover:text-rose-300">
+                            Clear saved token
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <!-- ENDPOINT PREVIEW -->
+            <div class="mt-6 p-4 rounded-2xl bg-slate-950/80 border border-slate-800">
+
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-xs font-semibold text-slate-400">
+                        API Endpoint
+                    </span>
+
+                    <span
+                        class="text-[10px] px-2 py-1 rounded-md bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                        GET
+                    </span>
+                </div>
+
+                <code id="endpointPreview" class="text-xs sm:text-sm text-emerald-400 break-all">
+                    http://localhost:5000/api/courses/{courseSlug}/lessons/{lessonId}/quiz
+                </code>
+
+            </div>
+
+
+            <!-- BUTTONS -->
+            <div class="flex flex-wrap items-center gap-3 mt-6">
+
+                <button id="fetchQuizBtn"
+                    class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-lg shadow-indigo-600/20 transition">
+                    🚀 Load Quiz
+                </button>
+
+                <button id="regenQuizBtn"
+                    class="px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium text-sm transition">
+                    🔄 Regenerate
+                </button>
+
+                <span id="loadingIndicator" class="hidden items-center gap-2 text-xs text-indigo-400">
+                    <span class="w-2 h-2 bg-indigo-400 rounded-full animate-pulse"></span>
+                    Contacting backend...
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- ALERT -->
+        <div id="alertBanner" class="hidden rounded-2xl p-4 text-sm border mb-7">
+        </div>
+
+
+        <!-- QUIZ -->
+        <section id="quizContainer" class="hidden">
+
+            <!-- QUIZ HEADER -->
+            <div class="glass border border-slate-800 rounded-3xl p-5 sm:p-7 shadow-xl mb-6">
+
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-5">
+
+                    <div>
+
+                        <div class="flex flex-wrap items-center gap-2 mb-3">
+
+                            <span
+                                class="px-2.5 py-1 rounded-lg text-[10px] uppercase tracking-wider font-bold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                                Knowledge Check
+                            </span>
+
+                            <span id="lessonBadge"
+                                class="px-2.5 py-1 rounded-lg text-[10px] uppercase tracking-wider font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                                Lesson
+                            </span>
+
+                        </div>
+
+                        <h2 id="quizTitle" class="text-2xl sm:text-3xl font-extrabold text-white">
+                            Lesson Quiz
+                        </h2>
+
+                        <p id="quizTopic" class="text-slate-400 text-sm mt-2">
+                            Loading...
+                        </p>
+
+                    </div>
+
+
+                    <div class="flex gap-3">
+
+                        <div
+                            class="min-w-[110px] text-center px-4 py-3 rounded-2xl bg-slate-950 border border-slate-800">
+                            <span class="text-[10px] uppercase text-slate-500 block">
+                                Questions
+                            </span>
+
+                            <span id="questionCount" class="text-xl font-bold text-white">
+                                0
+                            </span>
+                        </div>
+
+                        <div
+                            class="min-w-[110px] text-center px-4 py-3 rounded-2xl bg-slate-950 border border-slate-800">
+                            <span class="text-[10px] uppercase text-slate-500 block">
+                                Passing
+                            </span>
+
+                            <span id="quizPassing" class="text-xl font-bold text-emerald-400">
+                                60%
+                            </span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PROGRESS -->
+                <div class="mt-6">
+
+                    <div class="flex justify-between text-[11px] text-slate-500 mb-2">
+                        <span id="progressText">0 / 0 answered</span>
+                        <span>Complete all questions</span>
+                    </div>
+
+                    <div class="h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                        <div id="progressBar" class="progress-bar h-full bg-indigo-500 rounded-full" style="width: 0%">
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- QUESTIONS -->
+            <form id="quizForm">
+
+                <div id="questionsList" class="space-y-5">
+                </div>
+
+
+                <!-- SUBMIT -->
+                <div class="sticky bottom-4 mt-7 glass border border-slate-700 rounded-2xl p-4 shadow-2xl">
+
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+
+                        <div>
+                            <p class="text-sm font-semibold text-white">
+                                Ready to submit?
+                            </p>
+
+                            <p id="submitHint" class="text-xs text-slate-500 mt-1">
+                                Answer all questions before submitting.
+                            </p>
+                        </div>
+
+                        <button type="submit" id="submitQuizBtn"
+                            class="px-7 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm shadow-lg shadow-emerald-600/20 transition">
+                            Submit & Grade
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <!-- RESULT -->
+        <section id="resultCard" class="hidden mt-7 glass border border-slate-800 rounded-3xl p-5 sm:p-7 shadow-2xl">
+
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-5 pb-6 border-b border-slate-800">
+
+                <div>
+
+                    <span class="text-[10px] uppercase tracking-widest font-bold text-slate-500">
+                        Evaluation Result
+                    </span>
+
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">
+                        Quiz Complete
+                    </h2>
+
+                </div>
+
+
+                <div class="flex items-center gap-4">
+
+                    <div class="text-right">
+
+                        <span class="text-[10px] uppercase text-slate-500 block">
+                            Score
+                        </span>
+
+                        <span id="resScore" class="text-3xl font-black text-white">
+                            0 / 0
+                        </span>
+
+                    </div>
+
+                    <div id="statusPill" class="px-4 py-3 rounded-xl border font-bold text-sm">
+                        ---
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- SCORE SUMMARY -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 my-6">
+
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+                    <span class="text-[10px] uppercase text-slate-500 block">
+                        Percentage
+                    </span>
+
+                    <span id="resPercentage" class="text-xl font-bold text-indigo-400">
+                        0%
+                    </span>
+                </div>
+
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+                    <span class="text-[10px] uppercase text-slate-500 block">
+                        Correct
+                    </span>
+
+                    <span id="resCorrect" class="text-xl font-bold text-emerald-400">
+                        0
+                    </span>
+                </div>
+
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+                    <span class="text-[10px] uppercase text-slate-500 block">
+                        Incorrect
+                    </span>
+
+                    <span id="resIncorrect" class="text-xl font-bold text-rose-400">
+                        0
+                    </span>
+                </div>
+
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4">
+                    <span class="text-[10px] uppercase text-slate-500 block">
+                        Status
+                    </span>
+
+                    <span id="resStatus" class="text-xl font-bold text-white">
+                        —
+                    </span>
+                </div>
+
+            </div>
+
+
+            <!-- BREAKDOWN -->
+            <div>
+
+                <div class="flex items-center justify-between mb-4">
+
+                    <h3 class="text-sm font-bold text-white">
+                        Answer Breakdown
+                    </h3>
+
+                    <span class="text-[11px] text-slate-500">
+                        Review your answers
+                    </span>
+
+                </div>
+
+                <div id="breakdownList" class="space-y-4">
+                </div>
+
+            </div>
+
+
+            <div class="flex justify-end mt-7 pt-5 border-t border-slate-800">
+
+                <button id="retakeQuizBtn"
+                    class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition">
+                    ↻ Retake Quiz
+                </button>
+
+            </div>
+
+        </section>
+
+
+        <!-- RAW JSON -->
+        <section id="rawInspector" class="hidden mt-7 glass border border-slate-800 rounded-3xl p-5 shadow-xl">
+
+            <div class="flex items-center justify-between mb-3">
+
+                <div>
+                    <h3 class="text-sm font-bold text-white">
+                        JSON Inspector
+                    </h3>
+
+                    <p class="text-[11px] text-slate-500 mt-1">
+                        Last API response
+                    </p>
+                </div>
+
+                <button id="copyJsonBtn" class="text-xs text-indigo-400 hover:text-indigo-300">
+                    Copy JSON
+                </button>
+
+            </div>
+
+            <pre id="rawJsonContent"
+                class="bg-slate-950 p-4 rounded-2xl text-xs text-emerald-400 overflow-auto max-h-[500px] border border-slate-800">No request made yet.</pre>
+
+        </section>
+
+    </div>
+
+
+    <script>
+
+        // =========================================================
+        // STATE
+        // =========================================================
+
+        let currentQuiz = null;
+
+
+        // =========================================================
+        // DOM
+        // =========================================================
+
+        const baseUrlInput = document.getElementById('baseUrlInput');
+        const slugInput = document.getElementById('slugInput');
+        const lessonIdInput = document.getElementById('lessonIdInput');
+        const tokenInput = document.getElementById('tokenInput');
+
+        const tokenStatus = document.getElementById('tokenStatus');
+        const clearTokenBtn = document.getElementById('clearTokenBtn');
+
+        const fetchQuizBtn = document.getElementById('fetchQuizBtn');
+        const regenQuizBtn = document.getElementById('regenQuizBtn');
+
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const alertBanner = document.getElementById('alertBanner');
+
+        const endpointPreview = document.getElementById('endpointPreview');
+        const backendStatus = document.getElementById('backendStatus');
+
+        const quizContainer = document.getElementById('quizContainer');
+
+        const quizTitle = document.getElementById('quizTitle');
+        const quizTopic = document.getElementById('quizTopic');
+        const quizPassing = document.getElementById('quizPassing');
+        const lessonBadge = document.getElementById('lessonBadge');
+
+        const questionCount = document.getElementById('questionCount');
+        const progressText = document.getElementById('progressText');
+        const progressBar = document.getElementById('progressBar');
+
+        const questionsList = document.getElementById('questionsList');
+        const quizForm = document.getElementById('quizForm');
+        const submitQuizBtn = document.getElementById('submitQuizBtn');
+        const submitHint = document.getElementById('submitHint');
+
+        const resultCard = document.getElementById('resultCard');
+
+        const resScore = document.getElementById('resScore');
+        const resPercentage = document.getElementById('resPercentage');
+        const resCorrect = document.getElementById('resCorrect');
+        const resIncorrect = document.getElementById('resIncorrect');
+        const resStatus = document.getElementById('resStatus');
+
+        const statusPill = document.getElementById('statusPill');
+        const breakdownList = document.getElementById('breakdownList');
+
+        const retakeQuizBtn = document.getElementById('retakeQuizBtn');
+
+        const rawInspector = document.getElementById('rawInspector');
+        const toggleRawBtn = document.getElementById('toggleRawBtn');
+        const rawJsonContent = document.getElementById('rawJsonContent');
+        const copyJsonBtn = document.getElementById('copyJsonBtn');
+
+
+        // =========================================================
+        // LOCAL STORAGE
+        // =========================================================
+
+        const SAVED_TOKEN_KEY = 'quiz_tester_jwt_token';
+        const SAVED_BASE_URL_KEY = 'quiz_tester_base_url';
+        const SAVED_SLUG_KEY = 'quiz_tester_course_slug';
+        const SAVED_LESSON_KEY = 'quiz_tester_lesson_id';
+
+
+        const savedToken = localStorage.getItem(SAVED_TOKEN_KEY);
+        const savedBaseUrl = localStorage.getItem(SAVED_BASE_URL_KEY);
+        const savedSlug = localStorage.getItem(SAVED_SLUG_KEY);
+        const savedLesson = localStorage.getItem(SAVED_LESSON_KEY);
+
+
+        if (savedToken) {
+            tokenInput.value = savedToken;
+            setTokenStatus(true);
+        }
+
+        if (savedBaseUrl) {
+            baseUrlInput.value = savedBaseUrl;
+        }
+
+        if (savedSlug) {
+            slugInput.value = savedSlug;
+        }
+
+        if (savedLesson) {
+            lessonIdInput.value = savedLesson;
+        }
+
+
+        // =========================================================
+        // INPUT EVENTS
+        // =========================================================
+
+        tokenInput.addEventListener('input', () => {
+
+            const value = tokenInput.value.trim();
+
+            localStorage.setItem(SAVED_TOKEN_KEY, value);
+
+            setTokenStatus(Boolean(value));
+
+        });
+
+
+        baseUrlInput.addEventListener('input', () => {
+
+            localStorage.setItem(
+                SAVED_BASE_URL_KEY,
+                baseUrlInput.value.trim()
+            );
+
+            updateEndpointPreview();
+
+        });
+
+
+        slugInput.addEventListener('input', () => {
+
+            localStorage.setItem(
+                SAVED_SLUG_KEY,
+                slugInput.value.trim()
+            );
+
+            updateEndpointPreview();
+
+        });
+
+
+        lessonIdInput.addEventListener('input', () => {
+
+            localStorage.setItem(
+                SAVED_LESSON_KEY,
+                lessonIdInput.value.trim()
+            );
+
+            updateEndpointPreview();
+
+        });
+
+
+        clearTokenBtn.addEventListener('click', () => {
+
+            tokenInput.value = '';
+
+            localStorage.removeItem(SAVED_TOKEN_KEY);
+
+            setTokenStatus(false);
+
+        });
+
+
+        function setTokenStatus(isSet) {
+
+            tokenStatus.textContent = isSet
+                ? '✓ Token saved locally'
+                : 'Not set';
+
+            tokenStatus.className = isSet
+                ? 'text-[11px] text-emerald-400'
+                : 'text-[11px] text-slate-500';
+
+        }
+
+
+        // =========================================================
+        // ENDPOINT PREVIEW
+        // =========================================================
+
+        function updateEndpointPreview() {
+
+            const baseUrl =
+                baseUrlInput.value.trim().replace(/\/+$/, '');
+
+            const slug =
+                slugInput.value.trim() || '{courseSlug}';
+
+            const lessonId =
+                lessonIdInput.value.trim() || '{lessonId}';
+
+            endpointPreview.textContent =
+                `${baseUrl}/api/courses/${slug}/lessons/${lessonId}/quiz`;
+
+        }
+
+
+        updateEndpointPreview();
+
+
+        // =========================================================
+        // ALERT
+        // =========================================================
+
+        function showAlert(message, type = 'error') {
+
+            alertBanner.className =
+                'rounded-2xl p-4 text-sm border mb-7';
+
+            if (type === 'success') {
+
+                alertBanner.classList.add(
+                    'bg-emerald-500/10',
+                    'text-emerald-300',
+                    'border-emerald-500/20'
+                );
+
+                alertBanner.innerHTML = `
+                    <div class="flex gap-3">
+                        <span>✓</span>
+                        <div>
+                            <strong>Success</strong>
+                            <div class="text-emerald-300/80 mt-1">
+                                ${escapeHtml(message)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+            } else {
+
+                alertBanner.classList.add(
+                    'bg-rose-500/10',
+                    'text-rose-300',
+                    'border-rose-500/20'
+                );
+
+                alertBanner.innerHTML = `
+                    <div class="flex gap-3">
+                        <span>⚠</span>
+                        <div>
+                            <strong>Error</strong>
+                            <div class="text-rose-300/80 mt-1">
+                                ${escapeHtml(message)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+            }
+
+            alertBanner.classList.remove('hidden');
+
+        }
+
+
+        function hideAlert() {
+
+            alertBanner.classList.add('hidden');
+
+        }
+
+
+        // =========================================================
+        // LOADING
+        // =========================================================
+
+        function setLoading(isLoading) {
+
+            loadingIndicator.classList.toggle(
+                'hidden',
+                !isLoading
+            );
+
+            loadingIndicator.classList.toggle(
+                'flex',
+                isLoading
+            );
+
+            fetchQuizBtn.disabled = isLoading;
+            regenQuizBtn.disabled = isLoading;
+
+            fetchQuizBtn.classList.toggle(
+                'opacity-50',
+                isLoading
+            );
+
+            regenQuizBtn.classList.toggle(
+                'opacity-50',
+                isLoading
+            );
+
+        }
+
+
+        // =========================================================
+        // HEADERS
+        // =========================================================
+
+        function getHeaders() {
+
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+
+            const token =
+                tokenInput.value.trim();
+
+            if (token) {
+
+                headers['Authorization'] =
+                    token.startsWith('Bearer ')
+                        ? token
+                        : `Bearer ${token}`;
+
+            }
+
+            return headers;
+
+        }
+
+
+        // =========================================================
+        // VALIDATION
+        // =========================================================
+
+        function validateConfig() {
+
+            const slug =
+                slugInput.value.trim();
+
+            const lessonId =
+                lessonIdInput.value.trim();
+
+            const token =
+                tokenInput.value.trim();
+
+            if (!slug) {
+
+                showAlert(
+                    'Please enter a course slug.'
+                );
+
+                return false;
+
+            }
+
+            if (!lessonId) {
+
+                showAlert(
+                    'Please enter a lesson ID.'
+                );
+
+                return false;
+
+            }
+
+            if (!token) {
+
+                showAlert(
+                    'Please paste your JWT Bearer token.'
+                );
+
+                return false;
+
+            }
+
+            return true;
+
+        }
+
+
+        // =========================================================
+        // LOAD QUIZ
+        // =========================================================
+
+        async function loadQuiz(forceRegenerate = false) {
+
+            hideAlert();
+
+            resultCard.classList.add('hidden');
+
+            if (!validateConfig()) {
+                return;
+            }
+
+            setLoading(true);
+
+            const baseUrl =
+                baseUrlInput.value.trim().replace(/\/+$/, '');
+
+            const slug =
+                slugInput.value.trim();
+
+            const lessonId =
+                lessonIdInput.value.trim();
+
+
+            const url =
+                `${baseUrl}/api/courses/${encodeURIComponent(slug)}/lessons/${encodeURIComponent(lessonId)}/quiz` +
+                (forceRegenerate
+                    ? '?regenerate=true'
+                    : '');
+
+
+            try {
+
+                const response =
+                    await fetch(url, {
+                        method: 'GET',
+                        headers: getHeaders()
+                    });
+
+
+                const data =
+                    await parseResponse(response);
+
+
+                rawJsonContent.textContent =
+                    JSON.stringify(
+                        data,
+                        null,
+                        2
+                    );
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.message ||
+                        data.error ||
+                        `HTTP ${response.status}`
+                    );
+
+                }
+
+
+                const quizData =
+                    data.quiz || data;
+
+
+                if (
+                    !quizData ||
+                    !Array.isArray(quizData.questions) ||
+                    quizData.questions.length === 0
+                ) {
+
+                    throw new Error(
+                        'No questions found in quiz response.'
+                    );
+
+                }
+
+
+                currentQuiz = quizData;
+
+                backendStatus.textContent = 'Connected';
+                backendStatus.className =
+                    'text-emerald-400';
+
+
+                renderQuiz(quizData);
+
+
+                showAlert(
+                    forceRegenerate
+                        ? 'Quiz regenerated successfully.'
+                        : 'Quiz loaded successfully.',
+                    'success'
+                );
+
+
+            } catch (error) {
+
+                backendStatus.textContent =
+                    'Request failed';
+
+                backendStatus.className =
+                    'text-rose-400';
+
+                showAlert(error.message);
+
+                quizContainer.classList.add('hidden');
+
+            } finally {
+
+                setLoading(false);
+
+            }
+
+        }
+
+
+        // =========================================================
+        // RENDER QUIZ
+        // =========================================================
+
+        function renderQuiz(quiz) {
+
+            quizTitle.textContent =
+                quiz.title ||
+                `${quiz.lessonTitle || 'Lesson'} Quiz`;
+
+
+            lessonBadge.textContent =
+                quiz.lessonNumber
+                    ? `Lesson ${quiz.lessonNumber}`
+                    : 'Lesson Quiz';
+
+
+            quizTopic.textContent =
+                `${quiz.lessonTitle || 'Lesson'} • ${quiz.courseSlug || slugInput.value.trim()}`;
+
+
+            quizPassing.textContent =
+                `${quiz.passingPercentage || 60}%`;
+
+
+            questionCount.textContent =
+                quiz.questions.length;
+
+
+            questionsList.innerHTML = '';
+
+
+            quiz.questions.forEach(
+                (q, qIndex) => {
+
+                    const questionId =
+                        q.questionId ?? qIndex + 1;
+
+
+                    const card =
+                        document.createElement('div');
+
+
+                    card.className =
+                        'question-card glass border border-slate-800 rounded-2xl p-5 sm:p-6';
+
+
+                    const options =
+                        Array.isArray(q.options)
+                            ? q.options
+                            : [];
+
+
+                    card.innerHTML = `
+
+                        <div class="flex items-center justify-between gap-3 mb-4">
+
+                            <div class="flex items-center gap-2">
+
+                                <span class="w-8 h-8 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs font-bold">
+                                    ${qIndex + 1}
+                                </span>
+
+                                <span class="text-xs font-bold text-slate-400">
+                                    Question ${qIndex + 1}
+                                </span>
+
+                            </div>
+
+                            <span class="text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700">
+                                ${escapeHtml(q.difficulty || 'medium')}
+                            </span>
+
+                        </div>
+
+
+                        <h3 class="text-base sm:text-lg font-semibold leading-relaxed text-white mb-5">
+                            ${escapeHtml(q.question || '')}
+                        </h3>
+
+
+                        <div class="space-y-2.5">
+
+                            ${options.map(
+                        (option, optionIndex) => `
+
+                                    <label
+                                        class="option-label flex items-center gap-3 p-3.5 rounded-xl border border-slate-800 bg-slate-950/60 cursor-pointer">
+
+                                        <input
+                                            type="radio"
+                                            name="question_${questionId}"
+                                            value="${optionIndex}"
+                                            class="w-4 h-4 accent-indigo-500"
+                                        />
+
+                                        <span class="text-sm text-slate-200 leading-relaxed">
+                                            ${escapeHtml(option)}
+                                        </span>
+
+                                    </label>
+
+                                `
+                    ).join('')}
+
+                        </div>
+
+                    `;
+
+
+                    questionsList.appendChild(card);
+
+                }
+            );
+
+
+            quizContainer.classList.remove('hidden');
+
+            updateProgress();
+
+
+            document
+                .querySelectorAll(
+                    '#questionsList input[type="radio"]'
+                )
+                .forEach(input => {
+
+                    input.addEventListener(
+                        'change',
+                        updateProgress
+                    );
+
+                });
+
+
+            quizContainer.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+
+        }
+
+
+        // =========================================================
+        // PROGRESS
+        // =========================================================
+
+        function updateProgress() {
+
+            if (!currentQuiz) {
+                return;
+            }
+
+
+            const total =
+                currentQuiz.questions.length;
+
+
+            let answered = 0;
+
+
+            currentQuiz.questions.forEach(
+                q => {
+
+                    const selected =
+                        document.querySelector(
+                            `input[name="question_${q.questionId}"]:checked`
+                        );
+
+                    if (selected) {
+                        answered++;
+                    }
+
+                }
+            );
+
+
+            const percentage =
+                total === 0
+                    ? 0
+                    : Math.round(
+                        (answered / total) * 100
+                    );
+
+
+            progressBar.style.width =
+                `${percentage}%`;
+
+
+            progressText.textContent =
+                `${answered} / ${total} answered`;
+
+
+            submitHint.textContent =
+                answered === total
+                    ? 'All questions answered. You can submit now.'
+                    : `${total - answered} question(s) remaining.`;
+
+
+            submitQuizBtn.disabled =
+                answered !== total;
+
+        }
+
+
+        // =========================================================
+        // SUBMIT QUIZ
+        // =========================================================
+
+        quizForm.addEventListener(
+            'submit',
+            async event => {
+
+                event.preventDefault();
+
+                hideAlert();
+
+                if (!currentQuiz) {
+                    return;
+                }
+
+
+                const answers =
+                    currentQuiz.questions.map(
+                        (q, index) => {
+
+                            const questionId =
+                                q.questionId ?? index + 1;
+
+
+                            const selected =
+                                document.querySelector(
+                                    `input[name="question_${questionId}"]:checked`
+                                );
+
+
+                            return {
+
+                                questionId,
+
+                                selectedIndex:
+                                    selected
+                                        ? Number(selected.value)
+                                        : -1
+
+                            };
+
+                        }
+                    );
+
+
+                const unanswered =
+                    answers.filter(
+                        answer =>
+                            answer.selectedIndex === -1
+                    );
+
+
+                if (unanswered.length > 0) {
+
+                    showAlert(
+                        `Please answer all ${unanswered.length} remaining question(s).`
+                    );
+
+                    return;
+
+                }
+
+
+                setLoading(true);
+
+
+                const baseUrl =
+                    baseUrlInput.value.trim().replace(/\/+$/, '');
+
+                const slug =
+                    slugInput.value.trim();
+
+                const lessonId =
+                    lessonIdInput.value.trim();
+
+
+                const url =
+                    `${baseUrl}/api/courses/${encodeURIComponent(slug)}/lessons/${encodeURIComponent(lessonId)}/quiz/submit`;
+
+
+                try {
+
+                    const response =
+                        await fetch(url, {
+
+                            method: 'POST',
+
+                            headers: getHeaders(),
+
+                            body: JSON.stringify({
+                                answers
+                            })
+
+                        });
+
+
+                    const data =
+                        await parseResponse(response);
+
+
+                    rawJsonContent.textContent =
+                        JSON.stringify(
+                            data,
+                            null,
+                            2
+                        );
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            data.message ||
+                            data.error ||
+                            `HTTP ${response.status}`
+                        );
+
+                    }
+
+
+                    renderResult(data);
+
+
+                    showAlert(
+                        'Quiz evaluated successfully.',
+                        'success'
+                    );
+
+
+                } catch (error) {
+
+                    showAlert(
+                        `Submission failed: ${error.message}`
+                    );
+
+                } finally {
+
+                    setLoading(false);
+
+                }
+
+            }
+        );
+
+
+        // =========================================================
+        // RESULT
+        // =========================================================
+
+        function renderResult(result) {
+
+            const total =
+                result.totalQuestions ??
+                currentQuiz?.questions?.length ??
+                0;
+
+
+            const score =
+                result.score ?? 0;
+
+
+            const percentage =
+                result.percentage ?? 0;
+
+
+            const passed =
+                Boolean(result.passed);
+
+
+            resScore.textContent =
+                `${score} / ${total}`;
+
+
+            resPercentage.textContent =
+                `${percentage}%`;
+
+
+            resCorrect.textContent =
+                score;
+
+
+            resIncorrect.textContent =
+                Math.max(
+                    total - score,
+                    0
+                );
+
+
+            resStatus.textContent =
+                passed
+                    ? 'Passed'
+                    : 'Review';
+
+
+            statusPill.textContent =
+                passed
+                    ? `✓ PASSED`
+                    : `✕ NEEDS REVIEW`;
+
+
+            statusPill.className =
+                passed
+                    ? 'px-4 py-3 rounded-xl border font-bold text-sm bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                    : 'px-4 py-3 rounded-xl border font-bold text-sm bg-rose-500/10 text-rose-400 border-rose-500/30';
+
+
+            breakdownList.innerHTML = '';
+
+
+            (result.breakdown || []).forEach(
+                (item, index) => {
+
+                    const isCorrect =
+                        Boolean(item.isCorrect);
+
+
+                    const card =
+                        document.createElement('div');
+
+
+                    card.className =
+                        `p-4 sm:p-5 rounded-2xl border ${isCorrect
+                            ? 'bg-emerald-500/5 border-emerald-500/20'
+                            : 'bg-rose-500/5 border-rose-500/20'
+                        }`;
+
+
+                    card.innerHTML = `
+
+                        <div class="flex items-center justify-between gap-3 mb-3">
+
+                            <span class="text-xs font-bold text-slate-400">
+                                Question ${item.questionId ?? index + 1}
+                            </span>
+
+                            <span class="text-xs font-bold ${isCorrect
+                            ? 'text-emerald-400'
+                            : 'text-rose-400'
+                        }">
+                                ${isCorrect
+                            ? '✓ Correct'
+                            : '✕ Incorrect'
+                        }
+                            </span>
+
+                        </div>
+
+
+                        <p class="text-sm font-semibold text-white leading-relaxed mb-4">
+                            ${escapeHtml(item.question || '')}
+                        </p>
+
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
+
+                                <span class="text-[10px] uppercase tracking-wider text-slate-500 block mb-1">
+                                    Your Answer
+                                </span>
+
+                                <span class="text-sm ${isCorrect
+                            ? 'text-emerald-300'
+                            : 'text-rose-300'
+                        }">
+                                    ${escapeHtml(
+                            item.userAnswer ||
+                            'Not Answered'
+                        )}
+                                </span>
+
+                            </div>
+
+
+                            <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
+
+                                <span class="text-[10px] uppercase tracking-wider text-slate-500 block mb-1">
+                                    Correct Answer
+                                </span>
+
+                                <span class="text-sm text-emerald-300">
+                                    ${escapeHtml(
+                            item.correctOption ||
+                            'N/A'
+                        )}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        ${item.explanation
+                            ? `
+                                    <div class="mt-3 p-3 rounded-xl bg-slate-950/60 border border-slate-800">
+
+                                        <span class="text-[10px] uppercase tracking-wider text-slate-500 block mb-1">
+                                            Explanation
+                                        </span>
+
+                                        <p class="text-xs text-slate-300 leading-relaxed">
+                                            ${escapeHtml(item.explanation)}
+                                        </p>
+
+                                    </div>
+                                `
+                            : ''
+                        }
+
+                    `;
+
+
+                    breakdownList.appendChild(card);
+
+                }
+            );
+
+
+            resultCard.classList.remove('hidden');
+
+
+            resultCard.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+
+        }
+
+
+        // =========================================================
+        // RETAKE
+        // =========================================================
+
+        retakeQuizBtn.addEventListener(
+            'click',
+            () => {
+
+                quizForm.reset();
+
+                resultCard.classList.add(
+                    'hidden'
+                );
+
+                updateProgress();
+
+                quizContainer.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+
+            }
+        );
+
+
+        // =========================================================
+        // REGENERATE
+        // =========================================================
+
+        fetchQuizBtn.addEventListener(
+            'click',
+            () => loadQuiz(false)
+        );
+
+
+        regenQuizBtn.addEventListener(
+            'click',
+            () => {
+
+                const confirmed =
+                    confirm(
+                        'Regenerate the quiz for this lesson? The existing lesson quiz will be replaced.'
+                    );
+
+
+                if (confirmed) {
+
+                    loadQuiz(true);
+
+                }
+
+            }
+        );
+
+
+        // =========================================================
+        // JSON INSPECTOR
+        // =========================================================
+
+        toggleRawBtn.addEventListener(
+            'click',
+            () => {
+
+                rawInspector.classList.toggle(
+                    'hidden'
+                );
+
+            }
+        );
+
+
+        copyJsonBtn.addEventListener(
+            'click',
+            async () => {
+
+                try {
+
+                    await navigator.clipboard.writeText(
+                        rawJsonContent.textContent
+                    );
+
+                    copyJsonBtn.textContent =
+                        '✓ Copied';
+
+                    setTimeout(
+                        () => {
+                            copyJsonBtn.textContent =
+                                'Copy JSON';
+                        },
+                        1500
+                    );
+
+                } catch {
+
+                    showAlert(
+                        'Could not copy JSON.'
+                    );
+
+                }
+
+            }
+        );
+
+
+        // =========================================================
+        // RESPONSE PARSER
+        // =========================================================
+
+        async function parseResponse(response) {
+
+            const text =
+                await response.text();
+
+
+            if (!text) {
+                return {};
+            }
+
+
+            try {
+
+                return JSON.parse(text);
+
+            } catch {
+
+                return {
+                    error: text
+                };
+
+            }
+
+        }
+
+
+        // =========================================================
+        // HTML ESCAPE
+        // =========================================================
+
+        function escapeHtml(value) {
+
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+
+        }
+
+    </script>
+
+</body>
+
+</html>

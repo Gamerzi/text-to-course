@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Helps YouTube receive the Referer information needed by its player -->
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    <title>LearnSpace - Lesson</title>
+
+    <!-- Syntax highlighting -->
+    <link rel="stylesheet" media="screen"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
+    <link rel="stylesheet" media="print"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" />
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #1f2937;
+        }
+
+        header {
+            background: #172554;
+            color: white;
+            padding: 20px;
+        }
+
+        header h1 {
+            margin: 0 0 6px;
+            font-size: 25px;
+        }
+
+        header p {
+            margin: 0;
+            color: #cbd5e1;
+        }
+
+        main {
+            max-width: 1000px;
+            margin: 25px auto;
+            padding: 0 16px 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.07);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #172554;
+        }
+
+        h3 {
+            color: #1e40af;
+            margin-bottom: 8px;
+        }
+
+        .muted {
+            color: #64748b;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: #0f172a;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .video-container iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+
+        /* Fallback shown when the page is opened via file:// */
+        .video-fallback {
+            position: relative;
+            display: block;
+            width: 100%;
+            height: 100%;
+            color: white;
+            text-decoration: none;
+        }
+
+        .video-fallback img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.55;
+        }
+
+        .video-fallback .fallback-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+            gap: 10px;
+        }
+
+        .video-fallback .play-icon {
+            width: 68px;
+            height: 48px;
+            background: #ff0000;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        button,
+        .button-link {
+            display: inline-block;
+            border: none;
+            border-radius: 8px;
+            padding: 11px 16px;
+            background: #2563eb;
+            color: white;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        button:hover,
+        .button-link:hover {
+            background: #1d4ed8;
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .secondary {
+            background: #475569;
+        }
+
+        .secondary:hover {
+            background: #334155;
+        }
+
+        .status {
+            margin-top: 12px;
+            padding: 12px;
+            background: #eff6ff;
+            color: #1e40af;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .error {
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .section {
+            padding: 14px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        pre {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        code {
+            font-family: Consolas, "Fira Code", monospace;
+        }
+
+        .code-explanation {
+            color: #475569;
+            line-height: 1.6;
+            margin: 0 0 12px;
+        }
+
+        .code-wrap {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .code-wrap:last-child {
+            margin-bottom: 0;
+        }
+
+        .code-wrap pre {
+            margin: 0;
+            padding: 0;
+            background: #282c34;
+            border-radius: 10px;
+            font-size: 14px;
+            line-height: 1.6;
+            tab-size: 4;
+        }
+
+        .code-wrap pre code.hljs {
+            display: block;
+            padding: 38px 18px 18px;
+            background: transparent;
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        .code-lang {
+            position: absolute;
+            top: 10px;
+            left: 14px;
+            z-index: 1;
+            font-size: 11px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #abb2bf;
+            font-family: Arial, sans-serif;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 10px;
+            z-index: 1;
+            padding: 4px 10px;
+            font-size: 12px;
+            background: #3e4451;
+            border-radius: 6px;
+        }
+
+        .copy-btn:hover {
+            background: #4b5363;
+        }
+
+        ul {
+            padding-left: 22px;
+        }
+
+        li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        audio {
+            width: 100%;
+            margin-top: 14px;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .top-actions {
+            margin-bottom: 20px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .print-only {
+            display: none;
+        }
+
+        /* ---------- PDF / print layout ---------- */
+        @media print {
+            @page {
+                margin: 14mm;
+            }
+
+            * {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            body {
+                background: #fff;
+                color: #000;
+            }
+
+            header {
+                background: none;
+                color: #172554;
+                padding: 0 0 10px;
+                border-bottom: 2px solid #172554;
+            }
+
+            header h1 {
+                color: #172554;
+            }
+
+            header p {
+                color: #475569;
+            }
+
+            main {
+                margin: 14px 0 0;
+                padding: 0;
+                max-width: none;
+            }
+
+            .top-actions,
+            #pageStatus,
+            .video-container,
+            .actions,
+            .video-note,
+            #voiceCard,
+            .copy-btn,
+            audio {
+                display: none !important;
+            }
+
+            .print-only {
+                display: block;
+            }
+
+            .card {
+                box-shadow: none;
+                border-radius: 0;
+                padding: 0;
+                margin-bottom: 14px;
+            }
+
+            h2,
+            h3 {
+                break-after: avoid;
+            }
+
+            .section,
+            li {
+                break-inside: avoid;
+            }
+
+            a {
+                color: #1e40af;
+                text-decoration: none;
+            }
+
+            .code-wrap {
+                break-inside: auto;
+            }
+
+            .code-wrap pre {
+                background: #fafafa;
+                border: 1px solid #d1d5db;
+            }
+
+            .code-wrap pre code.hljs {
+                white-space: pre-wrap;
+                word-break: break-word;
+                overflow: visible;
+                font-size: 12px;
+                color: #383a42;
+            }
+
+            .code-lang {
+                color: #64748b;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 16px;
+            }
+
+            header h1 {
+                font-size: 21px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>LearnSpace</h1>
+        <p>Learn one lesson at a time.</p>
+    </header>
+
+    <main>
+        <div class="top-actions">
+            <a href="courses.html" class="button-link secondary" id="backButton">
+                ← Back to Lessons
+            </a>
+            <button id="downloadPdfButton" type="button" class="hidden">
+                ⬇ Download Notes (PDF)
+            </button>
+        </div>
+
+        <div id="pageStatus" class="status">Loading lesson...</div>
+
+        <section id="lessonContent" class="hidden">
+            <div class="card">
+                <p class="muted" id="lessonNumber"></p>
+                <h2 id="lessonTitle">Lesson title</h2>
+                <p id="learningObjective"></p>
+            </div>
+
+            <div class="card">
+                <h2>Lesson Video</h2>
+
+                <div id="videoContainer" class="video-container"></div>
+
+                <p id="videoTitle" class="muted"></p>
+                <p id="printVideoLink" class="print-only"></p>
+
+                <div class="actions">
+                    <a id="watchOnYouTube" class="button-link secondary" href="#" target="_blank"
+                        rel="noopener noreferrer">
+                        Watch on YouTube
+                    </a>
+                </div>
+
+                <p class="muted video-note">
+                    If the embedded player does not work, use the Watch on YouTube button.
+                </p>
+            </div>
+
+            <div class="card">
+                <h2>Overview</h2>
+                <p id="overview"></p>
+            </div>
+
+            <div class="card">
+                <h2>Lesson Explanation</h2>
+                <div id="sections"></div>
+            </div>
+
+            <div class="card" id="codeCard">
+                <h2>Code Example</h2>
+                <div id="codeBlocks"></div>
+            </div>
+
+            <div class="card">
+                <h2>Key Takeaways</h2>
+                <ul id="keyTakeaways"></ul>
+            </div>
+
+            <div class="card">
+                <h2>References</h2>
+                <ul id="citations"></ul>
+            </div>
+
+            <div class="card" id="voiceCard">
+                <h2>Listen in Hinglish</h2>
+                <p>
+                    Generate an audio explanation of this lesson in Hinglish.
+                </p>
+
+                <button id="generateVoiceButton" type="button">
+                    Generate Voice Explanation
+                </button>
+
+                <div id="voiceStatus" class="status hidden"></div>
+
+                <audio id="voiceAudio" controls class="hidden"></audio>
+
+                <div class="actions">
+                    <button id="downloadAudioButton" type="button" class="secondary hidden">
+                        Download Audio
+                    </button>
+                </div>
+
+                <div id="hinglishTextContainer" class="hidden">
+                    <h3>Hinglish Explanation</h3>
+                    <p id="hinglishText"></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+        // --------------------------------------------------
+        // 1. Read page parameters
+        // --------------------------------------------------
+
+        const params = new URLSearchParams(window.location.search);
+
+        const API_BASE = (
+            params.get("api") ||
+            "http://localhost:5000/api"
+        ).replace(/\/+$/, "");
+
+        const courseSlug = params.get("courseSlug");
+        const lessonId = params.get("lessonId");
+
+        // Prefer a token already saved in this tab/session.
+        // Avoid putting JWT tokens into URLs in production.
+        const token =
+            sessionStorage.getItem("learnspace_token") ||
+            params.get("token") ||
+            "";
+
+        const pageStatus = document.getElementById("pageStatus");
+        const lessonContent = document.getElementById("lessonContent");
+
+        const voiceStatus = document.getElementById("voiceStatus");
+        const voiceAudio = document.getElementById("voiceAudio");
+        const generateVoiceButton =
+            document.getElementById("generateVoiceButton");
+        const downloadAudioButton =
+            document.getElementById("downloadAudioButton");
+
+        let currentAudioUrl = null;
+
+        // --------------------------------------------------
+        // 2. Helpers
+        // --------------------------------------------------
+
+        function showPageStatus(message, isError = false) {
+            pageStatus.textContent = message;
+            pageStatus.classList.remove("hidden", "error");
+
+            if (isError) {
+                pageStatus.classList.add("error");
+            }
+        }
+
+        function showVoiceStatus(message, isError = false) {
+            voiceStatus.textContent = message;
+            voiceStatus.classList.remove("hidden", "error");
+
+            if (isError) {
+                voiceStatus.classList.add("error");
+            }
+        }
+
+        function getAuthHeaders() {
+            const headers = {
+                "Content-Type": "application/json"
+            };
+
+            if (token) {
+                headers.Authorization = `Bearer ${token}`;
+            }
+
+            return headers;
+        }
+
+        async function readResponse(response) {
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    `Request failed with status ${response.status}`
+                );
+            }
+
+            return data;
+        }
+
+        function getLessonFromResponse(data) {
+            // Supports common API response formats.
+            return (
+                data.lesson ||
+                data.data?.lesson ||
+                data.data ||
+                data
+            );
+        }
+
+        // Extracts an 11-character YouTube ID from an ID, a watch URL,
+        // a youtu.be URL or an embed URL.
+        function extractYouTubeId(video) {
+            const raw = String(video?.videoId || "").trim();
+
+            if (/^[\w-]{11}$/.test(raw)) {
+                return raw;
+            }
+
+            const candidates = [raw, String(video?.videoUrl || "").trim()];
+
+            for (const text of candidates) {
+                if (!text) continue;
+
+                const match = text.match(
+                    /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([\w-]{11})/i
+                );
+
+                if (match) {
+                    return match[1];
+                }
+            }
+
+            return "";
+        }
+
+        // Turns whatever the API sends for codeSnippet into a list of
+        // { code, language, explanation } objects.
+        function normalizeSnippets(value) {
+            if (value == null || value === "") return [];
+
+            if (typeof value === "string") {
+                return [{ code: value, language: "", explanation: "" }];
+            }
+
+            if (Array.isArray(value)) {
+                return value.flatMap(normalizeSnippets);
+            }
+
+            if (typeof value === "object") {
+                const code =
+                    value.code ??
+                    value.snippet ??
+                    value.codeSnippet ??
+                    value.content ??
+                    value.text ??
+                    value.example ??
+                    "";
+
+                const language = value.language ?? value.lang ?? "";
+                const explanation =
+                    value.explanation ?? value.description ?? value.title ?? "";
+
+                if (typeof code === "string" && code) {
+                    return [{
+                        code,
+                        language: String(language),
+                        explanation: String(explanation)
+                    }];
+                }
+
+                return [{
+                    code: JSON.stringify(value, null, 2),
+                    language: "json",
+                    explanation: ""
+                }];
+            }
+
+            return [{ code: String(value), language: "", explanation: "" }];
+        }
+
+        function renderCodeBlocks(value) {
+            const codeCard = document.getElementById("codeCard");
+            const container = document.getElementById("codeBlocks");
+            container.replaceChildren();
+
+            const snippets = normalizeSnippets(value);
+
+            snippets.forEach((snippet) => {
+                if (snippet.explanation) {
+                    const note = document.createElement("p");
+                    note.className = "code-explanation";
+                    note.textContent = snippet.explanation;
+                    container.appendChild(note);
+                }
+
+                const wrap = document.createElement("div");
+                wrap.className = "code-wrap";
+
+                const pre = document.createElement("pre");
+                const code = document.createElement("code");
+                code.textContent = snippet.code;
+
+                const lang = snippet.language.toLowerCase().trim();
+
+                // Use the declared language if highlight.js knows it,
+                // otherwise let highlight.js auto-detect.
+                if (window.hljs) {
+                    if (lang && hljs.getLanguage(lang)) {
+                        code.className = "language-" + lang;
+                    }
+                    try {
+                        hljs.highlightElement(code);
+                    } catch (e) {
+                        console.warn("Highlighting failed:", e);
+                    }
+                }
+
+                const label = document.createElement("span");
+                label.className = "code-lang";
+                label.textContent =
+                    (code.result && code.result.language) || lang || "code";
+
+                const copyBtn = document.createElement("button");
+                copyBtn.type = "button";
+                copyBtn.className = "copy-btn";
+                copyBtn.textContent = "Copy";
+                copyBtn.addEventListener("click", async () => {
+                    try {
+                        await navigator.clipboard.writeText(snippet.code);
+                        copyBtn.textContent = "Copied!";
+                    } catch {
+                        copyBtn.textContent = "Press Ctrl+C";
+                    }
+                    setTimeout(() => (copyBtn.textContent = "Copy"), 1500);
+                });
+
+                pre.appendChild(code);
+                wrap.append(label, copyBtn, pre);
+                container.appendChild(wrap);
+            });
+
+            codeCard.classList.toggle("hidden", snippets.length === 0);
+        }
+
+        // --------------------------------------------------
+        // 3. Render YouTube video
+        // --------------------------------------------------
+
+        function renderVideo(video) {
+            const container = document.getElementById("videoContainer");
+            const titleElement = document.getElementById("videoTitle");
+            const watchLink = document.getElementById("watchOnYouTube");
+
+            container.replaceChildren();
+
+            const videoId = extractYouTubeId(video);
+
+            // No usable video
+            if (!videoId) {
+                titleElement.textContent =
+                    "No video is available for this lesson.";
+                document.getElementById("printVideoLink").textContent = "";
+
+                if (video?.videoUrl && /^https?:\/\//i.test(video.videoUrl)) {
+                    watchLink.href = video.videoUrl;
+                    watchLink.classList.remove("hidden");
+                } else {
+                    watchLink.classList.add("hidden");
+                }
+
+                return;
+            }
+
+            const watchUrl =
+                "https://www.youtube.com/watch?v=" +
+                encodeURIComponent(videoId);
+
+            document.getElementById("printVideoLink").textContent =
+                "Video: " + watchUrl;
+
+            // The fallback link always works, whatever happens to the player.
+            watchLink.href = watchUrl;
+            watchLink.classList.remove("hidden");
+            titleElement.textContent = video.title || "Lesson video";
+
+            // YouTube rejects embeds from pages that are not served over
+            // http(s) (Error 153). When the file is opened by double-click
+            // (file://), show a clickable thumbnail instead of a broken player.
+            if (!/^https?:$/.test(window.location.protocol)) {
+                const fallback = document.createElement("a");
+                fallback.className = "video-fallback";
+                fallback.href = watchUrl;
+                fallback.target = "_blank";
+                fallback.rel = "noopener noreferrer";
+
+                const thumb = document.createElement("img");
+                thumb.src =
+                    "https://img.youtube.com/vi/" +
+                    encodeURIComponent(videoId) +
+                    "/hqdefault.jpg";
+                thumb.alt = video.title || "Lesson video thumbnail";
+                thumb.referrerPolicy = "no-referrer";
+
+                const text = document.createElement("div");
+                text.className = "fallback-text";
+
+                const icon = document.createElement("div");
+                icon.className = "play-icon";
+                icon.textContent = "▶";
+
+                const line1 = document.createElement("strong");
+                line1.textContent = "Click to watch on YouTube";
+
+                const line2 = document.createElement("small");
+                line2.textContent =
+                    "Embedded playback needs this page to be served over " +
+                    "http://localhost (not file://).";
+
+                text.append(icon, line1, line2);
+                fallback.append(thumb, text);
+                container.appendChild(fallback);
+
+                return;
+            }
+
+            // Normal embedded player
+            const embedParams = new URLSearchParams({
+                rel: "0",
+                playsinline: "1",
+                origin: window.location.origin
+            });
+
+            const iframe = document.createElement("iframe");
+
+            iframe.src =
+                "https://www.youtube.com/embed/" +
+                encodeURIComponent(videoId) +
+                "?" +
+                embedParams.toString();
+
+            iframe.title = video.title || "Lesson video";
+            iframe.referrerPolicy = "strict-origin-when-cross-origin";
+            iframe.allow =
+                "accelerometer; autoplay; clipboard-write; encrypted-media; " +
+                "gyroscope; picture-in-picture; web-share";
+            iframe.allowFullscreen = true;
+
+            container.appendChild(iframe);
+        }
+
+        // --------------------------------------------------
+        // 4. Render lesson content
+        // --------------------------------------------------
+
+        function renderLesson(lesson) {
+            document.getElementById("lessonNumber").textContent =
+                lesson.lessonNumber != null
+                    ? `Lesson ${lesson.lessonNumber}`
+                    : "Lesson";
+
+            document.getElementById("lessonTitle").textContent =
+                lesson.title || "Untitled lesson";
+
+            document.getElementById("learningObjective").textContent =
+                lesson.learningObjective || "";
+
+            document.getElementById("overview").textContent =
+                lesson.overview || "No overview is available yet.";
+
+            renderVideo(lesson.video);
+
+            // Sections
+            const sectionsContainer = document.getElementById("sections");
+            sectionsContainer.replaceChildren();
+
+            if (Array.isArray(lesson.sections) && lesson.sections.length) {
+                lesson.sections.forEach((section) => {
+                    const wrapper = document.createElement("div");
+                    wrapper.className = "section";
+
+                    const heading = document.createElement("h3");
+                    heading.textContent = section.subtopic || "Topic";
+
+                    const paragraph = document.createElement("p");
+                    paragraph.textContent = section.content || "";
+
+                    wrapper.append(heading, paragraph);
+                    sectionsContainer.appendChild(wrapper);
+                });
+            } else {
+                sectionsContainer.textContent =
+                    "Lesson explanation has not been generated yet.";
+            }
+
+            // Code example
+            renderCodeBlocks(lesson.codeSnippet);
+
+            // Key takeaways
+            const takeawaysList = document.getElementById("keyTakeaways");
+            takeawaysList.replaceChildren();
+
+            if (
+                Array.isArray(lesson.keyTakeaways) &&
+                lesson.keyTakeaways.length
+            ) {
+                lesson.keyTakeaways.forEach((item) => {
+                    const li = document.createElement("li");
+                    li.textContent =
+                        typeof item === "string"
+                            ? item
+                            : item.text || JSON.stringify(item);
+
+                    takeawaysList.appendChild(li);
+                });
+            } else {
+                const li = document.createElement("li");
+                li.textContent = "No key takeaways available.";
+                takeawaysList.appendChild(li);
+            }
+
+            // Citations / references
+            const citationsList = document.getElementById("citations");
+            citationsList.replaceChildren();
+
+            if (
+                Array.isArray(lesson.citations) &&
+                lesson.citations.length
+            ) {
+                lesson.citations.forEach((citation) => {
+                    const li = document.createElement("li");
+
+                    const label =
+                        typeof citation === "string"
+                            ? citation
+                            : citation.title || citation.url || "Reference";
+
+                    const url =
+                        typeof citation === "object"
+                            ? citation.url || citation.link
+                            : null;
+
+                    if (
+                        url &&
+                        /^https?:\/\//i.test(url)
+                    ) {
+                        const anchor = document.createElement("a");
+                        anchor.href = url;
+                        anchor.textContent = label;
+                        anchor.target = "_blank";
+                        anchor.rel = "noopener noreferrer";
+                        li.appendChild(anchor);
+                    } else {
+                        li.textContent = label;
+                    }
+
+                    citationsList.appendChild(li);
+                });
+            } else {
+                const li = document.createElement("li");
+                li.textContent = "No references available.";
+                citationsList.appendChild(li);
+            }
+        }
+
+        // --------------------------------------------------
+        // 5. Load lesson from backend
+        // --------------------------------------------------
+
+        async function loadLesson() {
+            if (!courseSlug || !lessonId) {
+                showPageStatus(
+                    "Missing courseSlug or lessonId in the URL.",
+                    true
+                );
+                return;
+            }
+
+            try {
+                showPageStatus("Loading lesson...");
+
+                const url =
+                    `${API_BASE}/courses/` +
+                    `${encodeURIComponent(courseSlug)}/` +
+                    `${encodeURIComponent(lessonId)}`;
+
+                const response = await fetch(url, {
+                    method: "GET",
+                    headers: getAuthHeaders()
+                });
+
+                const data = await readResponse(response);
+                const lesson = getLessonFromResponse(data);
+
+                if (!lesson || !lesson.title) {
+                    throw new Error(
+                        "The API response did not contain a valid lesson."
+                    );
+                }
+
+                renderLesson(lesson);
+
+                pageStatus.classList.add("hidden");
+                lessonContent.classList.remove("hidden");
+                document
+                    .getElementById("downloadPdfButton")
+                    .classList.remove("hidden");
+            } catch (error) {
+                console.error("Load lesson error:", error);
+
+                showPageStatus(
+                    `Unable to load lesson.\n${error.message}\n\n` +
+                    "Check that the backend is running, the courseSlug and " +
+                    "lessonId are correct, and your login token is valid.",
+                    true
+                );
+            }
+        }
+
+        // --------------------------------------------------
+        // 6. Generate Hinglish voice
+        // --------------------------------------------------
+
+        // The backend may return ONE base64 string or an ARRAY of base64
+        // chunks (Sarvam TTS has a text-length limit, so long lessons are
+        // split). This collects them all into a flat array of strings.
+        function getAudioChunks(data) {
+            const raw =
+                data.audios ??
+                data.audioChunks ??
+                data.chunks ??
+                data.audio ??
+                data.audioBase64 ??
+                data.data?.audios ??
+                data.data?.audioChunks ??
+                data.data?.chunks ??
+                data.data?.audio ??
+                data.data?.audioBase64 ??
+                null;
+
+            if (!raw) return [];
+
+            const list = Array.isArray(raw) ? raw : [raw];
+
+            return list
+                .map((item) =>
+                    typeof item === "string"
+                        ? item
+                        : item?.audio ??
+                        item?.audioBase64 ??
+                        item?.base64 ??
+                        item?.data ??
+                        ""
+                )
+                .filter((item) => typeof item === "string" && item.trim());
+        }
+
+        function getHinglishText(data) {
+            const text =
+                data.hinglishText ??
+                data.text ??
+                data.data?.hinglishText ??
+                data.data?.text ??
+                "";
+
+            return Array.isArray(text) ? text.join("\n\n") : String(text || "");
+        }
+
+        // Tolerant base64 decoder: strips data-URL prefixes and whitespace,
+        // accepts URL-safe base64, and repairs missing "=" padding.
+        function base64ToBytes(value) {
+            let b64 = String(value)
+                .trim()
+                .replace(/^data:[^;]+;base64,/i, "")
+                .replace(/\s+/g, "")
+                .replace(/-/g, "+")
+                .replace(/_/g, "/");
+
+            const remainder = b64.length % 4;
+
+            if (remainder === 1) {
+                throw new Error("Audio data is not valid base64.");
+            }
+            if (remainder === 2) b64 += "==";
+            if (remainder === 3) b64 += "=";
+
+            const binary = atob(b64);
+            const bytes = new Uint8Array(binary.length);
+
+            for (let i = 0; i < binary.length; i++) {
+                bytes[i] = binary.charCodeAt(i);
+            }
+
+            return bytes;
+        }
+
+        function isWav(bytes) {
+            return (
+                bytes.length > 12 &&
+                String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3]) === "RIFF" &&
+                String.fromCharCode(bytes[8], bytes[9], bytes[10], bytes[11]) === "WAVE"
+            );
+        }
+
+        function parseWav(bytes) {
+            const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+            let offset = 12;
+            let fmt = null;
+            let dataStart = -1;
+            let dataLength = 0;
+
+            while (offset + 8 <= bytes.length) {
+                const id = String.fromCharCode(
+                    bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3]
+                );
+                let size = view.getUint32(offset + 4, true);
+                const body = offset + 8;
+
+                if (id === "fmt ") {
+                    fmt = bytes.slice(body, body + size);
+                } else if (id === "data") {
+                    if (size === 0xffffffff || body + size > bytes.length) {
+                        size = bytes.length - body;
+                    }
+                    dataStart = body;
+                    dataLength = size;
+                    break;
+                }
+
+                offset = body + size + (size % 2);
+            }
+
+            if (!fmt || dataStart < 0) {
+                throw new Error("Unsupported WAV audio.");
+            }
+
+            return { fmt, data: bytes.subarray(dataStart, dataStart + dataLength) };
+        }
+
+        // Joins several WAV files into one valid WAV (a plain byte
+        // concatenation would leave extra headers that break playback).
+        function mergeWav(list) {
+            const parsed = list.map(parseWav);
+            const fmt = parsed[0].fmt;
+            const total = parsed.reduce((sum, item) => sum + item.data.length, 0);
+
+            const header = new Uint8Array(12 + 8 + fmt.length + 8);
+            const view = new DataView(header.buffer);
+
+            const writeText = (offset, text) => {
+                for (let i = 0; i < text.length; i++) {
+                    header[offset + i] = text.charCodeAt(i);
+                }
+            };
+
+            writeText(0, "RIFF");
+            view.setUint32(4, 4 + (8 + fmt.length) + (8 + total), true);
+            writeText(8, "WAVE");
+            writeText(12, "fmt ");
+            view.setUint32(16, fmt.length, true);
+            header.set(fmt, 20);
+            writeText(20 + fmt.length, "data");
+            view.setUint32(24 + fmt.length, total, true);
+
+            return new Blob([header, ...parsed.map((item) => item.data)], {
+                type: "audio/wav"
+            });
+        }
+
+        // Turns the chunk list into ONE playable Blob.
+        function buildAudioBlob(chunks, declaredFormat) {
+            const bytesList = chunks.map(base64ToBytes);
+            const allWav = bytesList.every(isWav);
+
+            if (allWav) {
+                if (bytesList.length === 1) {
+                    return { blob: new Blob([bytesList[0]], { type: "audio/wav" }), ext: "wav" };
+                }
+
+                try {
+                    return { blob: mergeWav(bytesList), ext: "wav" };
+                } catch (error) {
+                    console.warn("WAV merge failed, using raw bytes:", error);
+                }
+            }
+
+            const wavDeclared = String(declaredFormat || "").toLowerCase().includes("wav");
+
+            return {
+                blob: new Blob(bytesList, { type: wavDeclared ? "audio/wav" : "audio/mpeg" }),
+                ext: wavDeclared ? "wav" : "mp3"
+            };
+        }
+
+        generateVoiceButton.addEventListener("click", async () => {
+            if (!courseSlug || !lessonId) {
+                showVoiceStatus("Missing courseSlug or lessonId.", true);
+                return;
+            }
+
+            try {
+                generateVoiceButton.disabled = true;
+                generateVoiceButton.textContent = "Generating voice...";
+
+                showVoiceStatus(
+                    "Generating the Hinglish explanation and audio. Please wait..."
+                );
+
+                const url =
+                    `${API_BASE}/voice/` +
+                    `${encodeURIComponent(courseSlug)}/` +
+                    `${encodeURIComponent(lessonId)}`;
+
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: getAuthHeaders()
+                });
+
+                const data = await readResponse(response);
+
+                const chunks = getAudioChunks(data);
+                const hinglishText = getHinglishText(data);
+
+                if (hinglishText) {
+                    document.getElementById("hinglishText").textContent = hinglishText;
+                    document
+                        .getElementById("hinglishTextContainer")
+                        .classList.remove("hidden");
+                }
+
+                if (!chunks.length) {
+                    if (hinglishText) {
+                        showVoiceStatus(
+                            "Text was generated, but the API did not return audio."
+                        );
+                        return;
+                    }
+
+                    throw new Error(
+                        "The response did not contain audio. Check the voice API response format."
+                    );
+                }
+
+                const declaredFormat =
+                    data.audioFormat || data.data?.audioFormat || "";
+
+                const { blob, ext } = buildAudioBlob(chunks, declaredFormat);
+
+                if (currentAudioUrl) {
+                    URL.revokeObjectURL(currentAudioUrl);
+                }
+
+                currentAudioUrl = URL.createObjectURL(blob);
+
+                voiceAudio.src = currentAudioUrl;
+                voiceAudio.classList.remove("hidden");
+
+                downloadAudioButton.classList.remove("hidden");
+
+                downloadAudioButton.onclick = () => {
+                    const anchor = document.createElement("a");
+                    anchor.href = currentAudioUrl;
+                    anchor.download = `lesson-${lessonId}-voice.${ext}`;
+                    document.body.appendChild(anchor);
+                    anchor.click();
+                    anchor.remove();
+                };
+
+                showVoiceStatus(
+                    chunks.length > 1
+                        ? `Voice explanation generated successfully (${chunks.length} parts joined).`
+                        : "Voice explanation generated successfully."
+                );
+
+                // Browser autoplay rules may require pressing Play manually.
+                try {
+                    await voiceAudio.play();
+                } catch (playError) {
+                    console.info("Audio is ready. Press Play to listen.", playError);
+                }
+            } catch (error) {
+                console.error("Voice generation error:", error);
+
+                showVoiceStatus(
+                    `Unable to generate voice.\n${error.message}`,
+                    true
+                );
+            } finally {
+                generateVoiceButton.disabled = false;
+                generateVoiceButton.textContent = "Generate Voice Explanation";
+            }
+        });
+
+        // --------------------------------------------------
+        // 6b. Download notes as PDF (uses the browser's Save as PDF)
+        // --------------------------------------------------
+
+        const originalTitle = document.title;
+
+        document
+            .getElementById("downloadPdfButton")
+            .addEventListener("click", () => {
+                const lessonTitle = document
+                    .getElementById("lessonTitle")
+                    .textContent.trim();
+
+                // The page title becomes the default PDF file name.
+                document.title = lessonTitle || "LearnSpace lesson notes";
+                window.print();
+            });
+
+        window.addEventListener("afterprint", () => {
+            document.title = originalTitle;
+        });
+
+        // --------------------------------------------------
+        // 7. Initialize page
+        // --------------------------------------------------
+
+        loadLesson();
+
+        // Clean up the generated audio URL when leaving the page.
+        window.addEventListener("beforeunload", () => {
+            if (currentAudioUrl) {
+                URL.revokeObjectURL(currentAudioUrl);
+            }
+        });
+    </script>
+</body>
+
+</html>

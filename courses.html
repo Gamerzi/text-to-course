@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnSpace | Course</title>
+    <style>
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            margin: 0;
+            background: #f6f7fb;
+            color: #172033;
+            font-family: Arial, sans-serif
+        }
+
+        header {
+            padding: 22px 7%;
+            background: #fff;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            color: #5145cd
+        }
+
+        main {
+            max-width: 1050px;
+            margin: 35px auto;
+            padding: 0 20px
+        }
+
+        .panel {
+            background: white;
+            padding: 24px;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            margin-bottom: 22px
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 9px;
+            margin: 7px 0 15px;
+            font-size: 15px
+        }
+
+        button {
+            padding: 12px 17px;
+            background: #5145cd;
+            color: white;
+            border: 0;
+            border-radius: 9px;
+            cursor: pointer;
+            font-weight: 700
+        }
+
+        button:hover {
+            background: #4035b5
+        }
+
+        .lesson {
+            padding: 18px;
+            margin-top: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            gap: 15px;
+            align-items: center
+        }
+
+        .lesson:hover {
+            background: #f5f3ff;
+            border-color: #aaa1ff
+        }
+
+        .number {
+            background: #eeecff;
+            color: #5145cd;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold
+        }
+
+        .muted {
+            color: #667085;
+            font-size: 14px
+        }
+
+        #status {
+            white-space: pre-wrap;
+            margin-top: 12px;
+            color: #b42318
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px
+        }
+
+        @media(max-width:650px) {
+            .grid {
+                grid-template-columns: 1fr
+            }
+
+            header {
+                padding: 18px
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">✦ LearnSpace</div>
+        <div class="muted">YOUR COURSE</div>
+    </header>
+
+    <main>
+        <section class="panel">
+            <h2>Course overview</h2>
+            <p class="muted">Enter your API details to load your course and lessons.</p>
+            <label for="api">Backend API URL</label>
+            <input id="api" value="http://localhost:5000/api" placeholder="http://localhost:5000/api">
+
+            <div class="grid">
+                <div>
+                    <label for="slug">Course slug</label>
+                    <input id="slug" placeholder="e.g. basic-math-part-1-5063">
+                </div>
+                <div>
+                    <label for="token">Bearer token (JWT)</label>
+                    <input id="token" type="password" placeholder="Paste your JWT token here">
+                </div>
+            </div>
+
+            <label><input id="remember" type="checkbox" style="width:auto;margin:0 7px 0 0"> Remember API settings on
+                this browser</label>
+            <p><button id="loadBtn">Load course</button></p>
+            <div id="status"></div>
+        </section>
+
+        <section>
+            <h1 id="courseTitle">Choose a course</h1>
+            <p class="muted" id="courseDescription">Your lessons will appear here.</p>
+            <div id="lessons"></div>
+        </section>
+    </main>
+
+    <script>
+        const $ = id => document.getElementById(id);
+        const params = new URLSearchParams(location.search);
+
+        $('slug').value = params.get('courseSlug') || '';
+
+        try {
+            const saved = JSON.parse(localStorage.getItem('learnspaceSettings') || '{}');
+            if (saved.api) $('api').value = saved.api;
+            if (saved.slug && !$('slug').value) $('slug').value = saved.slug;
+            if (saved.token) $('token').value = saved.token;
+            $('remember').checked = !!saved.remember;
+        } catch { }
+
+        function getSettings() {
+            const api = $('api').value.trim().replace(/\/+$/, '');
+            const slug = $('slug').value.trim();
+            const token = $('token').value.trim();
+            return { api, slug, token };
+        }
+
+        async function apiRequest(url, options = {}) {
+            const { token } = getSettings();
+            const headers = {
+                ...(options.headers || {}),
+                ...(token ? { Authorization: `Bearer ${token}` } : {})
+            };
+
+            const response = await fetch(url, { ...options, headers });
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+                throw new Error(data.message || `Request failed: HTTP ${response.status}`);
+            }
+            return data;
+        }
+
+        $('loadBtn').addEventListener('click', loadCourse);
+        $('slug').addEventListener('keydown', e => {
+            if (e.key === 'Enter') loadCourse();
+        });
+
+        async function loadCourse() {
+            const { api, slug, token } = getSettings();
+            $('status').textContent = '';
+            $('lessons').innerHTML = '';
+
+            if (!slug) {
+                $('status').textContent = 'Please enter your course slug.';
+                return;
+            }
+
+            if (!api) {
+                $('status').textContent = 'Please enter your backend API URL.';
+                return;
+            }
+
+            if ($('remember').checked) {
+                localStorage.setItem('learnspaceSettings', JSON.stringify({
+                    api, slug, token, remember: true
+                }));
+            } else {
+                localStorage.removeItem('learnspaceSettings');
+            }
+
+            $('status').textContent = 'Loading course...';
+            $('loadBtn').disabled = true;
+
+            try {
+                const data = await apiRequest(
+                    `${api}/courses/${encodeURIComponent(slug)}`
+                );
+
+                const course = data.course;
+                if (!course) throw new Error('Course was not returned by the API.');
+
+                $('courseTitle').textContent = course.title || 'Your course';
+                $('courseDescription').textContent =
+                    course.description || `${course.lessons?.length || 0} lessons`;
+
+                const lessons = course.lessons || [];
+                if (!lessons.length) {
+                    $('lessons').innerHTML = '<p class="muted">No lessons found in this course.</p>';
+                }
+
+                lessons.forEach((lesson, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'lesson';
+
+                    const number = document.createElement('div');
+                    number.className = 'number';
+                    number.textContent = String(lesson.lessonNumber || index + 1).padStart(2, '0');
+
+                    const details = document.createElement('div');
+                    const title = document.createElement('strong');
+                    title.textContent = lesson.title || `Lesson ${index + 1}`;
+
+                    const subtitle = document.createElement('p');
+                    subtitle.className = 'muted';
+                    subtitle.textContent = lesson.learningObjective || 'Open lesson to view notes and video';
+
+                    details.append(title, subtitle);
+                    card.append(number, details);
+
+                    card.addEventListener('click', () => {
+                        const query = new URLSearchParams({
+                            api,
+                            courseSlug: slug,
+                            lessonId: lesson.lessonId,
+                            ...(token ? { token } : {})
+                        });
+                        location.href = `lesson.html?${query.toString()}`;
+                    });
+
+                    $('lessons').appendChild(card);
+                });
+
+                $('status').textContent = `Loaded ${lessons.length} lesson(s).`;
+                $('status').style.color = '#067647';
+            } catch (error) {
+                $('status').style.color = '#b42318';
+                $('status').textContent =
+                    `${error.message}\n\nCheck the API URL, course slug, JWT token, and backend server.`;
+            } finally {
+                $('loadBtn').disabled = false;
+            }
+        }
+    </script>
+</body>
+
+</html>
