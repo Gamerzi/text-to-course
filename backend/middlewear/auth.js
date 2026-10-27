@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-export const protect = async (req, res, next) => {
+const protect = async (req, res, next) => {
     let token;
 
     // 1. Check if token exists in Authorization header (Format: Bearer <token>)
@@ -40,3 +40,5 @@ export const protect = async (req, res, next) => {
         });
     }
 };
+
+export default protect;
