@@ -1,4 +1,3 @@
-
 import OpenAI from 'openai';
 import youtubeUtil from '../utils/youtube.js';
 
@@ -75,37 +74,104 @@ const userRequestedVideoChange = (prompt) => {
     return mentionsVideo && requestsChange;
 };
 
-// Build a concise YouTube search query.
-// Prefer the lesson title and course title, not the entire lesson content.
-const buildVideoSearchQuery = (courseTitle, lesson, userPrompt) => {
-    const course = String(courseTitle || '').trim();
-    const title = String(lesson?.title || '').trim();
+// Detect whether the prompt also asks for a lesson CONTENT edit.
+// If a video change is requested and none of these appear, the request is
+// video-only and the slow AI rewrite can be skipped entirely.
+const userRequestedContentChange = (prompt) =>
+    /\b(add|remove|delete|rewrite|rephrase|explain|expand|shorten|simplify|elaborate|fix|correct|include|insert|improve|section|sections|overview|code|snippet|example|examples|takeaway|takeaways|objective|subtopic|subtopics|title|summary|summarize|content|text|paragraph|quiz|citation|citations)\b/i
+        .test(String(prompt || ''));
 
-    // If the user specifies a particular topic for the replacement,
-    // include that request without adding the entire lesson overview.
-    const prompt = String(userPrompt || '')
-        .replace(/\b(please|can you|could you|just|change|replace|find|search|another|different|new|better|video|youtube|tutorial|for me|the current|current video)\b/gi, ' ')
+// Words that are instructions to us, not useful YouTube search terms.
+const SEARCH_STOP_WORDS = new RegExp(
+    '\\b(' + [
+        'change', 'replace', 'another', 'different', 'new', 'better',
+        'update', 'find', 'search', 'switch', 'alternative', 'recommend',
+        'select', 'the', 'this', 'that', 'with', 'for', 'a', 'an', 'me',
+        'please', 'video', 'videos', 'youtube', 'watch', 'lecture', 'to',
+        'of', 'it', 'one', 'i', 'want', 'need', 'can', 'you', 'give',
+        'show', 'make', 'use', 'instead', 'tutorial', 'tutorials',
+        'about', 'on', 'regarding', 'related', 'some', 'any', 'good',
+        'best', 'from', 'in', 'is', 'are', 'my', 'then', 'also', 'just',
+    ].join('|') + ')\\b',
+    'gi'
+);
+
+// Words that only describe HOW the video should be (language, length, level),
+// not WHAT it should be about.
+const MODIFIER_WORDS = new RegExp(
+    '\\b(' + [
+        'hindi', 'english', 'telugu', 'tamil', 'urdu', 'spanish',
+        'short', 'shorter', 'long', 'longer', 'detailed', 'quick',
+        'beginner', 'beginners', 'advanced', 'simple', 'easy', 'full',
+        'crash', 'course', 'latest', 'recent', 'updated',
+    ].join('|') + ')\\b',
+    'gi'
+);
+
+const tidy = (text) =>
+    String(text || '')
         .replace(/[^\w\s+#.-]/g, ' ')
         .replace(/\s+/g, ' ')
         .trim();
 
-    const queryParts = [course, title];
+// Build the YouTube search query.
+// Returns { query, strict }.
+//
+// strict = true  -> the user named their own topic, so search ONLY that.
+//                   "find a video about algorithms" -> "algorithms"
+//                   'search "dynamic programming"'  -> "dynamic programming"
+// strict = false -> generic request ("replace with a better one", "hindi video"),
+//                   so use the course + lesson title as context.
+const buildVideoSearchQuery = (courseTitle, lesson, userPrompt) => {
+    const prompt = String(userPrompt || '').trim();
 
-    if (prompt.length >= 3) {
-        queryParts.push(prompt.slice(0, 100));
+    // 1. Text in double quotes is searched exactly as written.
+    const quoted = prompt.match(/["\u201C\u201D]([^"\u201C\u201D]{2,})["\u201C\u201D]/);
+    if (quoted) {
+        return { query: tidy(quoted[1]), strict: true };
     }
 
-    return [...new Set(queryParts.filter(Boolean))]
+    // 2. Strip instruction words, keep whatever the user wants to search for.
+    const hints = tidy(prompt.replace(SEARCH_STOP_WORDS, ' '));
+
+    // Does anything remain besides language / length / level words?
+    const topicWords = hints.replace(MODIFIER_WORDS, ' ').replace(/\s+/g, ' ').trim();
+
+    if (topicWords) {
+        return { query: hints, strict: true };
+    }
+
+    // 3. Generic request: fall back to the lesson context.
+    const course = String(courseTitle || '').trim();
+    const lessonTitle = String(lesson?.title || '').trim();
+
+    const includeCourse =
+        course &&
+        !lessonTitle.toLowerCase().includes(course.toLowerCase());
+
+    let query = [includeCourse ? course : '', lessonTitle, hints, 'tutorial']
+        .filter(Boolean)
         .join(' ')
-        .slice(0, 220)
+        .replace(/\s+/g, ' ')
         .trim();
+
+    // Very long queries return poor results; cut at a word boundary.
+    if (query.length > 100) {
+        query = query.slice(0, 100);
+        query = query.slice(0, query.lastIndexOf(' ')).trim() || query;
+    }
+
+    return { query, strict: false };
 };
 
+
 // Lesson Update Agent
+// excludedVideoIds: optional list of video IDs already used elsewhere in the course.
 export const updateLessonContent = async (
     courseTitle,
     existingLesson,
-    userPrompt
+    userPrompt,
+    excludedVideoIds = []
 ) => {
     if (!courseTitle) {
         throw new Error('Course title is required');
@@ -128,6 +194,11 @@ export const updateLessonContent = async (
 
     const videoChangeRequested =
         userRequestedVideoChange(userPrompt);
+
+    // Video-only requests need no AI call at all: the video comes from the
+    // YouTube search and the lesson content stays exactly as it is.
+    const videoOnlyRequest =
+        videoChangeRequested && !userRequestedContentChange(userPrompt);
 
     const existingLessonForAI = {
         lessonId: existingLesson.lessonId,
@@ -221,15 +292,29 @@ Return strict JSON only:
     let parsedResponse;
     let lastError;
 
-    for (let attempt = 1; attempt <= 2; attempt++) {
-        try {
-            const response = await client.chat.completions.create({
-                model: 'openai/gpt-oss-20b',
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    {
-                        role: 'user',
-                        content: `
+    if (videoOnlyRequest) {
+        console.log('⚡ Video-only request: skipping AI content rewrite');
+
+        parsedResponse = {
+            updateAnalysis: {
+                updateType: 'video',
+                affectedAreas: ['video'],
+                contentChanged: false,
+                videoChangeRequested: true,
+                summary: '',
+            },
+            lesson: { ...existingLessonForAI },
+        };
+    } else {
+        for (let attempt = 1; attempt <= 2; attempt++) {
+            try {
+                const response = await client.chat.completions.create({
+                    model: 'openai/gpt-oss-20b',
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        {
+                            role: 'user',
+                            content: `
 COURSE:
 ${courseTitle}
 
@@ -242,39 +327,40 @@ ${userPrompt.trim()}
 Return the complete lesson and updateAnalysis as valid JSON.
 Preserve lessonId, lessonNumber, and unrelated content.
 `,
-                    },
-                ],
-                response_format: { type: 'json_object' },
-                temperature: attempt === 1 ? 0.2 : 0.1,
-                max_tokens: 5000,
-            });
+                        },
+                    ],
+                    response_format: { type: 'json_object' },
+                    temperature: attempt === 1 ? 0.2 : 0.1,
+                    max_tokens: 5000,
+                });
 
-            parsedResponse = safeJsonParse(
-                response.choices?.[0]?.message?.content || ''
-            );
-
-            if (
-                parsedResponse?.lesson &&
-                parsedResponse?.updateAnalysis
-            ) {
-                break;
-            }
-
-            throw new Error(
-                'AI response is missing lesson or updateAnalysis'
-            );
-        } catch (error) {
-            lastError = error;
-
-            console.warn(
-                `⚠️ [Lesson Update Agent] Attempt ${attempt} failed:`,
-                error.message
-            );
-
-            if (attempt === 2) {
-                throw new Error(
-                    `Failed to update lesson: ${lastError.message}`
+                parsedResponse = safeJsonParse(
+                    response.choices?.[0]?.message?.content || ''
                 );
+
+                if (
+                    parsedResponse?.lesson &&
+                    parsedResponse?.updateAnalysis
+                ) {
+                    break;
+                }
+
+                throw new Error(
+                    'AI response is missing lesson or updateAnalysis'
+                );
+            } catch (error) {
+                lastError = error;
+
+                console.warn(
+                    `⚠️ [Lesson Update Agent] Attempt ${attempt} failed:`,
+                    error.message
+                );
+
+                if (attempt === 2) {
+                    throw new Error(
+                        `Failed to update lesson: ${lastError.message}`
+                    );
+                }
             }
         }
     }
@@ -286,12 +372,17 @@ Preserve lessonId, lessonNumber, and unrelated content.
     aiLesson.lessonId = existingLesson.lessonId;
     aiLesson.lessonNumber = existingLesson.lessonNumber;
 
-    // For a video-only request, preserve the original lesson content.
-    const contentChanged = videoChangeRequested
-        ? false
-        : updateAnalysis.contentChanged === true;
+    // Decide whether lesson content changed.
+    // A video-only request (AI classifies it as "video") keeps the original content.
+    // A mixed request (content + video) keeps the AI's content changes.
+    const aiSaysVideoOnly = updateAnalysis.updateType === 'video';
 
-    const updatedLesson = videoChangeRequested && !contentChanged
+    const contentChanged =
+        videoChangeRequested && aiSaysVideoOnly
+            ? false
+            : updateAnalysis.contentChanged === true;
+
+    const updatedLesson = !contentChanged
         ? {
             ...existingLessonForAI,
         }
@@ -339,30 +430,42 @@ Preserve lessonId, lessonNumber, and unrelated content.
     // VIDEO HANDLING
     let newVideo = existingLesson.video || null;
     let videoChanged = false;
+    let searchQuery = '';
 
     if (videoChangeRequested) {
-        const searchQuery = buildVideoSearchQuery(
+        const built = buildVideoSearchQuery(
             courseTitle,
             updatedLesson,
             userPrompt
         );
 
+        searchQuery = built.query;
+        const strictSearch = built.strict;
+
         const existingVideoId =
             existingLesson.video?.videoId || null;
 
+        // Exclude the current video plus any videos used by other lessons.
+        const allExcludedIds = [
+            ...new Set(
+                [existingVideoId, ...(excludedVideoIds || [])].filter(Boolean)
+            ),
+        ];
+
         console.log('🎥 Searching for a replacement YouTube video...');
-        console.log(`🔎 Search query: "${searchQuery}"`);
-        console.log(`🚫 Excluded video ID: ${existingVideoId || 'None'}`);
+        console.log(`🔎 Search query: "${searchQuery}" (strict: ${strictSearch})`);
+        console.log(`🚫 Excluded video IDs: ${allExcludedIds.join(', ') || 'None'}`);
 
         try {
             const searchedVideo = await youtubeUtil.searchYouTube(
                 searchQuery,
-                existingVideoId ? [existingVideoId] : []
+                allExcludedIds,
+                { strict: strictSearch }
             );
 
             if (!searchedVideo?.videoId) {
                 throw new Error(
-                    'YouTube search returned no usable replacement video. Check the API key, API quota, and search results.'
+                    `YouTube found no unused video for "${searchQuery}". Try a more specific request.`
                 );
             }
 
@@ -409,8 +512,11 @@ Preserve lessonId, lessonNumber, and unrelated content.
         affectedAreas: Array.isArray(updateAnalysis.affectedAreas)
             ? updateAnalysis.affectedAreas
             : [],
-        summary: updateAnalysis.summary ||
-            'Lesson updated successfully.',
+        // For a video-only change, build the summary ourselves so the AI
+        // cannot describe a video it never saw.
+        summary: videoChanged && !contentChanged
+            ? `Replaced the lesson video with "${newVideo?.title}" (searched: "${searchQuery}").`
+            : (updateAnalysis.summary || 'Lesson updated successfully.'),
     };
 
     console.log('\n======================================================');
