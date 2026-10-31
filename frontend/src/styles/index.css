@@ -1,10 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Sora:wght@500;600;700&display=swap");
 
-/* Global design tokens – colours sampled from the video */
+/* Global design tokens – unified luminous purple gradient palette */
 :root {
-  --void: #07040f;
-  --panel: #0f0a1d;
-  --panel-soft: #171030;
+  --void: #150c2c;
+  --panel: #1a103c;
+  --panel-soft: #23164c;
   --violet: #a855f7;
   --violet-deep: #6d28d9;
   --magenta: #d946ef;
@@ -28,12 +28,20 @@ body,
 #root {
   min-height: 100%;
   margin: 0;
+  padding: 0;
+  background-color: #150c2c;
+  background-image: 
+    radial-gradient(circle at 18% 12%, rgba(168, 85, 247, 0.36) 0%, transparent 48%),
+    radial-gradient(circle at 82% 18%, rgba(124, 58, 237, 0.34) 0%, transparent 46%),
+    radial-gradient(circle at 50% 60%, rgba(99, 102, 241, 0.26) 0%, transparent 52%),
+    radial-gradient(circle at 85% 85%, rgba(219, 39, 119, 0.22) 0%, transparent 48%),
+    linear-gradient(155deg, #170d32 0%, #1c103e 40%, #150b2c 100%);
+  background-attachment: fixed;
 }
 
 body {
   font-family: var(--font-body);
   color: var(--ink);
-  background: var(--void);
   -webkit-font-smoothing: antialiased;
 }
 

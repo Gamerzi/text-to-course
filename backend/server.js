@@ -31,14 +31,23 @@ app.use('/api/courses', courseRoute);
 app.use('/api/voice', voiceRoutes);
 app.use('/api/courses', quizeRoute);
 
-// Course progress routes
+// Course progress routes (supports /api/course-progress, /api/progress, and /api/courses/progress)
 app.use('/api/course-progress', courseProgressRoute);
 app.use('/api/progress', courseProgressRoute);
+app.use('/api/courses/progress', courseProgressRoute);
 
 app.get('/api/health', (req, res) => {
     res.status(200).json({
         status: 'ok',
         message: 'Text-to-Learn Backend API is running'
+    });
+});
+
+// 404 / Bad Request handler for unmatched API routes
+app.use((req, res) => {
+    res.status(404).json({
+        success: false,
+        message: `Bad Request: Route ${req.originalUrl} not found`
     });
 });
 

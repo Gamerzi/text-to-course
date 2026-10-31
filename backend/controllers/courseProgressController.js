@@ -25,14 +25,34 @@ const buildSummary = (course, completedLessons = []) => {
     };
 };
 
-// GET /api/progress/:courseSlug
+const findCourseBySlug = async (slug) => {
+    const clean = String(slug || "").trim();
+    if (!clean) return null;
+
+    const safeEscaped = clean.replace(/[-/\\^$*+?.()|[\]{}]/g, "\\$&");
+    return await Course.findOne({
+        $or: [
+            { courseSlug: clean },
+            { courseSlug: clean.toLowerCase() },
+            { courseSlug: new RegExp(`^${safeEscaped}$`, "i") }
+        ]
+    }).lean();
+};
+
+// GET /api/progress/:courseSlug or /api/course-progress/:courseSlug
 export const getCourseProgress = async (req, res) => {
     try {
         const { courseSlug } = req.params;
-        const userId = req.user.id;
+        const userId = req.user?.id || req.user?._id;
 
-        const course = await Course.findOne({ courseSlug }).lean();
-        if (!course) return res.status(404).json({ message: "Course not found" });
+        if (!userId) {
+            return res.status(401).json({ message: "User not authenticated" });
+        }
+
+        const course = await findCourseBySlug(courseSlug);
+        if (!course) {
+            return res.status(404).json({ message: "Course not found" });
+        }
 
         const progress = await CourseProgress.findOne({
             user: userId,
@@ -40,7 +60,7 @@ export const getCourseProgress = async (req, res) => {
         }).lean();
 
         return res.status(200).json({
-            courseSlug,
+            courseSlug: course.courseSlug,
             ...buildSummary(course, progress?.completedLessons),
         });
     } catch (error) {
@@ -54,25 +74,37 @@ export const updateLessonProgress = async (req, res) => {
     try {
         const { courseSlug, lessonId } = req.params;
         const { completed } = req.body;
-        const userId = req.user.id;
+        const userId = req.user?.id || req.user?._id;
+
+        if (!userId) {
+            return res.status(401).json({ message: "User not authenticated" });
+        }
 
         if (typeof completed !== "boolean") {
             return res.status(400).json({ message: "completed must be true or false" });
         }
 
-        const course = await Course.findOne({ courseSlug }).lean();
-        if (!course) return res.status(404).json({ message: "Course not found" });
-
-        const lessonExists = (course.lessons || []).some(
-            (lesson) => lessonKey(lesson) === String(lessonId)
-        );
-        if (!lessonExists) {
-            return res.status(404).json({ message: "Lesson not found in this course" });
+        const course = await findCourseBySlug(courseSlug);
+        if (!course) {
+            return res.status(404).json({ message: "Course not found" });
         }
 
+        const cleanLessonId = String(lessonId || "").trim();
+        const matchedLesson = (course.lessons || []).find((lesson) => {
+            const key = String(lesson.lessonId ?? lesson._id);
+            return (
+                key === cleanLessonId ||
+                key.toLowerCase() === cleanLessonId.toLowerCase() ||
+                (lesson.title && Course.slugify && Course.slugify(lesson.title) === cleanLessonId)
+            );
+        });
+
+        // Resolve to lesson.lessonId or provided lessonId
+        const resolvedId = matchedLesson ? lessonKey(matchedLesson) : cleanLessonId;
+
         const update = completed
-            ? { $addToSet: { completedLessons: String(lessonId) } }
-            : { $pull: { completedLessons: String(lessonId) } };
+            ? { $addToSet: { completedLessons: resolvedId } }
+            : { $pull: { completedLessons: resolvedId } };
 
         const progress = await CourseProgress.findOneAndUpdate(
             { user: userId, course: course._id },
@@ -91,7 +123,7 @@ export const updateLessonProgress = async (req, res) => {
 
         return res.status(200).json({
             message: completed ? "Lesson marked as completed" : "Lesson marked as incomplete",
-            courseSlug,
+            courseSlug: course.courseSlug,
             ...summary,
         });
     } catch (error) {
@@ -100,10 +132,14 @@ export const updateLessonProgress = async (req, res) => {
     }
 };
 
-// GET /api/progress/my-progress
+// GET /api/progress/my-progress or /api/course-progress/my-progress
 export const getMyCourseProgress = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user?.id || req.user?._id;
+
+        if (!userId) {
+            return res.status(401).json({ message: "User not authenticated" });
+        }
 
         const list = await CourseProgress.find({ user: userId })
             .populate("course", "title courseSlug lessons")

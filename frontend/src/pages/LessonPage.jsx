@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import hljs from "highlight.js";
 import "highlight.js/styles/github-dark.css";
 import "../styles/LessonPage.css";
+import ErrorPage from "../components/ErrorPage.jsx";
 
 /* =====================================
    API + AUTH HELPERS
@@ -318,10 +319,18 @@ export default function LessonPage() {
     const [pdfBusy, setPdfBusy] = useState(false);
     const [copied, setCopied] = useState(false);
 
+    // Voice & TTS states
     const [voiceBusy, setVoiceBusy] = useState(false);
     const [voiceStatus, setVoiceStatus] = useState({ msg: "", error: false });
     const [audioUrl, setAudioUrl] = useState("");
+    const [voiceText, setVoiceText] = useState("");
     const [playing, setPlaying] = useState(false);
+    const [paused, setPaused] = useState(false);
+    const [ttsMode, setTtsMode] = useState(""); // "browser" | "sarvam"
+    const [audioCurrentTime, setAudioCurrentTime] = useState(0);
+    const [audioDuration, setAudioDuration] = useState(0);
+    const [isMuted, setIsMuted] = useState(false);
+    const utteranceRef = useRef(null);
 
     const audioRef = useRef(null);
     const objectUrlRef = useRef("");
@@ -335,6 +344,16 @@ export default function LessonPage() {
         clearTimeout(toastTimer.current);
         toastTimer.current = setTimeout(() => setToast(""), 3200);
     };
+
+    /* Pre-load browser speech voices if available */
+    useEffect(() => {
+        if (typeof window !== "undefined" && window.speechSynthesis) {
+            window.speechSynthesis.getVoices();
+            window.speechSynthesis.onvoiceschanged = () => {
+                window.speechSynthesis.getVoices();
+            };
+        }
+    }, []);
 
     /* ---------- load lesson ---------- */
     useEffect(() => {
@@ -495,6 +514,9 @@ export default function LessonPage() {
         () => () => {
             clearTimeout(toastTimer.current);
             if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+            if (typeof window !== "undefined" && window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
         },
         []
     );
@@ -542,35 +564,283 @@ export default function LessonPage() {
         }
     };
 
-    /* ---------- voice ---------- */
-    const generateVoice = async () => {
-        try {
-            setVoiceBusy(true);
-            setVoiceStatus({ msg: "Generating Hinglish explanation...", error: false });
+    /* ---------- browser text-to-speech (chunked to fix Chrome "interrupted" bug) ---------- */
+    const speakWithBrowserTts = (textToSpeak) => {
+        if (!("speechSynthesis" in window)) {
+            showToast("Your browser does not support built-in speech synthesis.");
+            return;
+        }
 
-            const res = await fetch(
-                `${API_BASE}/voice/${encodeURIComponent(courseSlug)}/${encodeURIComponent(lessonId)}`,
-                { method: "POST", headers: getAuthHeaders() }
-            );
-            if (!res.ok) await readResponse(res);
+        // Cancel any ongoing speech first, then wait one tick before speaking
+        // (Chrome on Windows fires "interrupted" if speak() is called too fast after cancel())
+        window.speechSynthesis.cancel();
+        setPaused(false);
+        setTtsMode("browser");
 
-            const type = res.headers.get("content-type") || "";
-            let url;
+        // --- Pick the best available voice ---
+        const voices = window.speechSynthesis.getVoices();
+        const preferredVoice =
+            voices.find((v) => v.lang === "hi-IN" || v.lang.startsWith("hi")) ||
+            voices.find((v) => v.name.toLowerCase().includes("hindi")) ||
+            voices.find((v) => v.lang === "en-IN" || v.name.toLowerCase().includes("india")) ||
+            voices[0] ||
+            null;
 
-            if (type.includes("application/json")) {
-                const data = await res.json();
-                url = data.audioUrl || data.url || data.data?.audioUrl;
-                if (!url) throw new Error("Voice API did not return an audio URL.");
-            } else {
-                const blob = await res.blob();
-                if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
-                url = URL.createObjectURL(blob);
-                objectUrlRef.current = url;
+        // --- Split into sentence-sized chunks (~150 words each) ---
+        // Chrome on Windows interrupts long utterances — chunking fixes it.
+        const splitIntoChunks = (text) => {
+            // Split on sentence endings, keeping the delimiter
+            const sentences = text.match(/[^.!?।\n]+[.!?।\n]*/g) || [text];
+            const chunks = [];
+            let current = "";
+            for (const s of sentences) {
+                const candidate = current ? current + " " + s.trim() : s.trim();
+                // ~150 words ≈ 900 characters
+                if (candidate.length > 900 && current) {
+                    chunks.push(current.trim());
+                    current = s.trim();
+                } else {
+                    current = candidate;
+                }
+            }
+            if (current.trim()) chunks.push(current.trim());
+            return chunks.filter(Boolean);
+        };
+
+        const chunks = splitIntoChunks(textToSpeak);
+        let chunkIndex = 0;
+
+        const speakChunk = (index) => {
+            if (index >= chunks.length) {
+                // All chunks done
+                setPlaying(false);
+                setPaused(false);
+                utteranceRef.current = null;
+                return;
             }
 
-            setAudioUrl(url);
-            setVoiceStatus({ msg: "Voice explanation generated.", error: false });
-            setTimeout(() => audioRef.current?.play().catch(() => { }), 50);
+            const utt = new SpeechSynthesisUtterance(chunks[index]);
+            utteranceRef.current = utt;
+
+            if (preferredVoice) {
+                utt.voice = preferredVoice;
+                utt.lang = preferredVoice.lang;
+            } else {
+                utt.lang = "hi-IN";
+            }
+            utt.rate = 0.95;
+            utt.pitch = 1.0;
+
+            utt.onstart = () => { setPlaying(true); setPaused(false); };
+            utt.onend = () => {
+                // If stop was pressed, utteranceRef is nulled — don't continue
+                if (!utteranceRef.current && index < chunks.length - 1) return;
+                // Small delay between chunks avoids Chrome dropping the next one
+                setTimeout(() => speakChunk(index + 1), 100);
+            };
+            utt.onerror = (e) => {
+                if (e.error === "interrupted") {
+                    // Silently skip — happens when stopVoice() cancels mid-chunk
+                    return;
+                }
+                console.warn("Browser TTS chunk error:", e.error);
+                setPlaying(false);
+                setPaused(false);
+            };
+
+            window.speechSynthesis.speak(utt);
+        };
+
+        // Delay the first chunk by 100 ms so cancel() has fully settled
+        setPlaying(true);
+        setTimeout(() => speakChunk(0), 100);
+    };
+
+    const pauseVoice = () => {
+        if (ttsMode === "browser" && window.speechSynthesis) {
+            window.speechSynthesis.pause();
+            setPlaying(false);
+            setPaused(true);
+        } else if (ttsMode === "sarvam" && audioRef.current) {
+            audioRef.current.pause();
+            setPlaying(false);
+            setPaused(true);
+        }
+    };
+
+    const resumeVoice = () => {
+        if (ttsMode === "browser" && window.speechSynthesis) {
+            window.speechSynthesis.resume();
+            setPlaying(true);
+            setPaused(false);
+        } else if (ttsMode === "sarvam" && audioRef.current) {
+            audioRef.current.play().catch(() => {});
+            setPlaying(true);
+            setPaused(false);
+        }
+    };
+
+    /* ---------- time formatting helper for audio player ---------- */
+    const formatTime = (secs) => {
+        if (!secs || isNaN(secs) || secs < 0) return "0:00";
+        const m = Math.floor(secs / 60);
+        const s = Math.floor(secs % 60);
+        return `${m}:${s < 10 ? "0" : ""}${s}`;
+    };
+
+    /* ---------- audio player controls ---------- */
+    const onAudioTimeUpdate = () => {
+        if (audioRef.current) {
+            setAudioCurrentTime(audioRef.current.currentTime || 0);
+        }
+    };
+
+    const onAudioLoadedMetadata = () => {
+        if (audioRef.current) {
+            setAudioDuration(audioRef.current.duration || 0);
+        }
+    };
+
+    const handleSeekAudio = (e) => {
+        if (!audioRef.current || !audioDuration) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+        const newTime = ratio * audioDuration;
+        audioRef.current.currentTime = newTime;
+        setAudioCurrentTime(newTime);
+    };
+
+    const toggleAudioPlay = () => {
+        if (!audioRef.current) return;
+        if (playing) {
+            audioRef.current.pause();
+            setPlaying(false);
+            setPaused(true);
+        } else {
+            audioRef.current.play().catch(() => {});
+            setPlaying(true);
+            setPaused(false);
+        }
+    };
+
+    const restartAudio = () => {
+        if (!audioRef.current) return;
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch(() => {});
+        setPlaying(true);
+        setPaused(false);
+    };
+
+    const toggleMute = () => {
+        if (!audioRef.current) return;
+        const next = !isMuted;
+        audioRef.current.muted = next;
+        setIsMuted(next);
+    };
+
+    /* ---------- play already-generated voice ---------- */
+    const playVoice = () => {
+        if (ttsMode === "sarvam" && audioRef.current) {
+            audioRef.current.currentTime = 0;
+            audioRef.current.play().catch(() => {});
+            setPlaying(true);
+            setPaused(false);
+        } else if (voiceText) {
+            speakWithBrowserTts(voiceText);
+        }
+    };
+
+    /* ---------- voice generation (Sarvam with Browser TTS Fallback) ---------- */
+    const generateVoice = async (forceRefresh = false, autoPlay = false) => {
+        const isForce = forceRefresh === true;
+        try {
+            setVoiceBusy(true);
+            setVoiceStatus({
+                msg: isForce
+                    ? "Generating fresh Hinglish explanation with AI..."
+                    : "Fetching audio from database...",
+                error: false
+            });
+            setVoiceText("");
+            setAudioUrl("");
+            setTtsMode("");
+            setPaused(false);
+            setAudioCurrentTime(0);
+            setAudioDuration(0);
+
+            // Stop any ongoing speech or audio
+            stopVoice();
+
+            const url = `${API_BASE}/voice/${encodeURIComponent(courseSlug)}/${encodeURIComponent(lessonId)}${isForce ? "?refresh=true" : ""}`;
+            const res = await fetch(url, { method: "POST", headers: getAuthHeaders() });
+
+            const data = await readResponse(res);
+
+            if (!data.success && data.message) {
+                throw new Error(data.message);
+            }
+
+            const explanationText = data.text || "";
+            setVoiceText(explanationText);
+
+            // Check if Sarvam audio chunks were returned
+            const hasSarvamAudio = Array.isArray(data.audio) && data.audio.length > 0;
+
+            if (!data.fallbackToBrowserTts && hasSarvamAudio) {
+                // Decode Sarvam audio chunks to playable blob
+                try {
+                    const byteArrays = data.audio.map((base64) => {
+                        const byteCharacters = atob(base64);
+                        const byteNumbers = new Array(byteCharacters.length);
+                        for (let i = 0; i < byteCharacters.length; i++) {
+                            byteNumbers[i] = byteCharacters.charCodeAt(i);
+                        }
+                        return new Uint8Array(byteNumbers);
+                    });
+                    const blob = new Blob(byteArrays, { type: "audio/mp3" });
+                    if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current);
+                    const url = URL.createObjectURL(blob);
+                    objectUrlRef.current = url;
+                    setAudioUrl(url);
+                    setTtsMode("sarvam");
+                    setVoiceStatus({
+                        msg: data.cached
+                            ? "✅ Fetched saved audio from MongoDB! Click ▶ Play to listen."
+                            : "✅ Ready! Click ▶ Play to listen to the audio intro (Sarvam AI). You can read the full explanation below.",
+                        error: false
+                    });
+
+                    if (autoPlay) {
+                        setTimeout(() => {
+                            if (audioRef.current) {
+                                audioRef.current.currentTime = 0;
+                                audioRef.current.play().catch(() => {});
+                                setPlaying(true);
+                                setPaused(false);
+                            }
+                        }, 100);
+                    }
+                    return;
+                } catch (audioBuildErr) {
+                    console.warn("Sarvam audio decode notice, falling back to browser TTS:", audioBuildErr);
+                }
+            }
+
+            // Fallback: Browser TTS ready — user clicks Play to start
+            if (explanationText) {
+                setTtsMode("browser");
+                setVoiceStatus({
+                    msg: "✅ Ready! Click ▶ Play to listen (browser TTS).",
+                    error: false
+                });
+                if (autoPlay) {
+                    speakWithBrowserTts(explanationText);
+                }
+            } else {
+                throw new Error("No explanation text received from voice server.");
+            }
+
         } catch (err) {
             console.error("Voice generation error:", err);
             setVoiceStatus({ msg: err.message || "Unable to generate voice.", error: true });
@@ -579,11 +849,54 @@ export default function LessonPage() {
         }
     };
 
+    /* ---------- play/replay saved audio from MongoDB or toggle playback ---------- */
+    const replayAudio = () => {
+        if (audioUrl && audioRef.current) {
+            if (playing) {
+                audioRef.current.pause();
+                setPlaying(false);
+                setPaused(true);
+                return;
+            }
+            if (paused) {
+                audioRef.current.play().catch(() => {});
+                setPlaying(true);
+                setPaused(false);
+                return;
+            }
+            restartAudio();
+            return;
+        }
+
+        if (ttsMode === "browser" && voiceText) {
+            if (playing) {
+                pauseVoice();
+            } else if (paused) {
+                resumeVoice();
+            } else {
+                speakWithBrowserTts(voiceText);
+            }
+            return;
+        }
+
+        // Fetch saved audio from MongoDB (without ?refresh=true) and auto-play
+        generateVoice(false, true);
+    };
+
     const stopVoice = () => {
+        if (typeof window !== "undefined" && window.speechSynthesis) {
+            window.speechSynthesis.cancel();
+        }
+        // Null out the ref so the chunk chain's onend doesn't queue the next chunk
+        utteranceRef.current = null;
         const a = audioRef.current;
-        if (!a) return;
-        a.pause();
-        a.currentTime = 0;
+        if (a) {
+            a.pause();
+            a.currentTime = 0;
+        }
+        setAudioCurrentTime(0);
+        setPlaying(false);
+        setPaused(false);
     };
 
     /* ---------- copy code ---------- */
@@ -727,22 +1040,19 @@ export default function LessonPage() {
 
     if (error || !lesson) {
         return (
-            <div className="ld-page">
-                {background}
-                <div className="ld-state">
-                    <div className="ld-state-icon">!</div>
-                    <h2>Unable to load lesson</h2>
-                    <p>{error || "Lesson not found."}</p>
-                    <div className="ld-state-actions">
-                        <button className="ld-btn ld-btn-ghost" onMouseDown={ripple} onClick={() => navigate(`/course/${courseSlug}`)}>
-                            ← Back to Course
-                        </button>
-                        <button className="ld-btn ld-btn-primary" onMouseDown={ripple} onClick={() => setReloadKey((k) => k + 1)}>
-                            Try again
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <ErrorPage
+                title={error ? "Lesson Unavailable" : "Lesson Not Found"}
+                message="We encountered an issue while loading this lesson. Please check your network connection or try loading again."
+                details={error || "The requested lesson data could not be retrieved from the server."}
+                badge="LESSON ERROR"
+                onRetry={() => {
+                    setError("");
+                    setLoading(true);
+                    setReloadKey((k) => k + 1);
+                }}
+                backText="Back to Course"
+                backUrl={`/course/${courseSlug}`}
+            />
         );
     }
 
@@ -953,16 +1263,57 @@ export default function LessonPage() {
                     {/* VOICE */}
                     <Reveal className="ld-card ld-voice">
                         <h2 className="ld-card-title"><span className="ld-ico">🔊</span> Hinglish Voice Explanation</h2>
-                        <p className="ld-muted">Generate a Hinglish explanation of this lesson.</p>
+                        <p className="ld-muted">Generate a natural Hinglish audio explanation of this lesson powered by AI.</p>
 
+                        {/* Row 1: Generate button + Replay button + waveform */}
                         <div className="ld-voice-row">
-                            <div className="ld-actions ld-actions-tight">
-                                <button className="ld-btn ld-btn-primary" onMouseDown={ripple} onClick={generateVoice} disabled={voiceBusy}>
-                                    {voiceBusy ? <i className="ld-spinner" /> : <span>🔊</span>}
-                                    {voiceBusy ? "Generating..." : "Generate Voice"}
+                            <div className="ld-voice-btn-group">
+                                {/* Left side: Play / Retry button with text instead of logo */}
+                                <button
+                                    type="button"
+                                    className="ld-btn ld-btn-primary ld-btn-play"
+                                    onMouseDown={ripple}
+                                    onClick={replayAudio}
+                                    disabled={voiceBusy}
+                                    title={voiceStatus.error ? "Retry fetching audio" : "Play audio saved in MongoDB"}
+                                >
+                                    {voiceBusy && !audioUrl && !voiceText ? (
+                                        <i className="ld-spinner" />
+                                    ) : (
+                                        <span>{voiceStatus.error ? "↻" : playing ? "⏸" : "▶"}</span>
+                                    )}
+                                    <span>
+                                        {voiceBusy && !audioUrl && !voiceText
+                                            ? "Loading..."
+                                            : voiceStatus.error
+                                            ? "Retry"
+                                            : playing
+                                            ? "Pause"
+                                            : paused
+                                            ? "Resume"
+                                            : "Play"}
+                                    </span>
                                 </button>
-                                <button className="ld-btn ld-btn-ghost" onMouseDown={ripple} onClick={stopVoice} disabled={!audioUrl}>
-                                    ■ Stop
+
+                                {/* Beside it: Re-generate button */}
+                                <button
+                                    type="button"
+                                    className="ld-btn ld-btn-replay ld-btn-regenerate"
+                                    onMouseDown={ripple}
+                                    onClick={() => generateVoice(true)}
+                                    disabled={voiceBusy}
+                                    title="Generate a fresh Hinglish voice using AI"
+                                >
+                                    {voiceBusy && (audioUrl || voiceText) ? (
+                                        <i className="ld-spinner" />
+                                    ) : (
+                                        <span>✨</span>
+                                    )}
+                                    <span>
+                                        {voiceBusy && (audioUrl || voiceText)
+                                            ? "Generating..."
+                                            : "Re-generate"}
+                                    </span>
                                 </button>
                             </div>
 
@@ -973,20 +1324,166 @@ export default function LessonPage() {
                             </div>
                         </div>
 
+                        {/* Row 2: Playback controls — shown only when text/audio is ready */}
+                        {(voiceText || audioUrl) && !voiceBusy && (
+                            <div className="ld-voice-controls">
+                                {/* Sarvam custom audio player */}
+                                {audioUrl ? (
+                                    <div className="ld-custom-player">
+                                        <audio
+                                            ref={audioRef}
+                                            src={audioUrl}
+                                            onTimeUpdate={onAudioTimeUpdate}
+                                            onLoadedMetadata={onAudioLoadedMetadata}
+                                            onPlay={() => { setPlaying(true); setPaused(false); }}
+                                            onPause={() => { setPlaying(false); setPaused(true); }}
+                                            onEnded={() => { setPlaying(false); setPaused(false); setAudioCurrentTime(0); }}
+                                        />
+
+                                        <button
+                                            type="button"
+                                            className="ld-player-btn ld-player-play-btn"
+                                            onClick={toggleAudioPlay}
+                                            title={playing ? "Pause" : "Play"}
+                                            aria-label={playing ? "Pause" : "Play"}
+                                        >
+                                            {playing ? "⏸" : "▶"}
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            className="ld-player-btn ld-player-sub-btn"
+                                            onClick={restartAudio}
+                                            title="Restart audio from beginning"
+                                            aria-label="Restart audio from beginning"
+                                        >
+                                            ↺
+                                        </button>
+
+                                        <span className="ld-player-time">
+                                            {formatTime(audioCurrentTime)}
+                                        </span>
+
+                                        <div
+                                            className="ld-player-scrubber"
+                                            onClick={handleSeekAudio}
+                                            role="slider"
+                                            aria-label="Audio scrubber"
+                                            aria-valuenow={audioCurrentTime}
+                                            aria-valuemax={audioDuration || 1}
+                                        >
+                                            <div className="ld-player-track">
+                                                <div
+                                                    className="ld-player-fill"
+                                                    style={{
+                                                        width: `${audioDuration ? Math.min(100, (audioCurrentTime / audioDuration) * 100) : 0}%`
+                                                    }}
+                                                />
+                                                <div
+                                                    className="ld-player-thumb"
+                                                    style={{
+                                                        left: `${audioDuration ? Math.min(100, (audioCurrentTime / audioDuration) * 100) : 0}%`
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <span className="ld-player-time ld-player-duration">
+                                            {formatTime(audioDuration)}
+                                        </span>
+
+                                        <button
+                                            type="button"
+                                            className="ld-player-btn ld-player-sub-btn"
+                                            onClick={toggleMute}
+                                            title={isMuted ? "Unmute" : "Mute"}
+                                            aria-label={isMuted ? "Unmute" : "Mute"}
+                                        >
+                                            {isMuted ? "🔇" : "🔊"}
+                                        </button>
+                                    </div>
+                                ) : (
+                                    /* Browser TTS controls */
+                                    <>
+                                        {!playing && !paused && (
+                                            <button
+                                                className="ld-btn ld-btn-primary ld-btn-icon"
+                                                onMouseDown={ripple}
+                                                onClick={playVoice}
+                                                title="Play"
+                                            >
+                                                ▶ Play
+                                            </button>
+                                        )}
+                                        {playing && (
+                                            <button
+                                                className="ld-btn ld-btn-ghost ld-btn-icon"
+                                                onMouseDown={ripple}
+                                                onClick={pauseVoice}
+                                                title="Pause"
+                                            >
+                                                ⏸ Pause
+                                            </button>
+                                        )}
+                                        {paused && (
+                                            <button
+                                                className="ld-btn ld-btn-primary ld-btn-icon"
+                                                onMouseDown={ripple}
+                                                onClick={resumeVoice}
+                                                title="Resume"
+                                            >
+                                                ▶ Resume
+                                            </button>
+                                        )}
+                                        <button
+                                            className="ld-btn ld-btn-ghost ld-btn-icon"
+                                            onMouseDown={ripple}
+                                            onClick={stopVoice}
+                                            disabled={!playing && !paused}
+                                            title="Stop"
+                                        >
+                                            ■ Stop
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        )}
+
                         {voiceStatus.msg ? (
                             <div className={`ld-note ${voiceStatus.error ? "ld-note-error" : ""}`}>{voiceStatus.msg}</div>
                         ) : null}
 
-                        {audioUrl ? (
-                            <audio
-                                ref={audioRef}
-                                className="ld-audio"
-                                src={audioUrl}
-                                controls
-                                onPlay={() => setPlaying(true)}
-                                onPause={() => setPlaying(false)}
-                                onEnded={() => setPlaying(false)}
-                            />
+                        {/* Formatted transcript */}
+                        {voiceText ? (
+                            <div className="ld-voice-transcript">
+                                <strong>Hinglish Explanation Transcript:</strong>
+                                <div className="ld-transcript-body">
+                                    {voiceText.split(/\n\n+/).filter(Boolean).map((block, i) => {
+                                        const trimmed = block.trim();
+                                        // Numbered list block: starts with "1." or "1) "
+                                        const lines = trimmed.split(/\n/).filter(Boolean);
+                                        const isNumberedList = lines.length > 1 && lines.every(l => /^\d+[.)]\s/.test(l.trim()));
+                                        if (isNumberedList) {
+                                            return (
+                                                <ol key={i} className="ld-transcript-list">
+                                                    {lines.map((item, j) => (
+                                                        <li key={j}>{item.replace(/^\d+[.)]\s*/, "")}</li>
+                                                    ))}
+                                                </ol>
+                                            );
+                                        }
+                                        // Single numbered item that spans a block
+                                        if (/^\d+[.)]\s/.test(trimmed)) {
+                                            return (
+                                                <ol key={i} className="ld-transcript-list" start={parseInt(trimmed)}>
+                                                    <li>{trimmed.replace(/^\d+[.)]\s*/, "")}</li>
+                                                </ol>
+                                            );
+                                        }
+                                        return <p key={i}>{trimmed}</p>;
+                                    })}
+                                </div>
+                            </div>
                         ) : null}
                     </Reveal>
                 </main>

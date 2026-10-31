@@ -246,6 +246,7 @@ export default function QuizPage() {
     const [submitting, setSubmitting] = useState(false);
     const [result, setResult] = useState(null);
     const [reviewFilter, setReviewFilter] = useState('all');
+    const [regenerating, setRegenerating] = useState(false);
 
     const getHeaders = () => {
         const token = localStorage.getItem("token");
@@ -480,7 +481,38 @@ export default function QuizPage() {
         setReloadKey(k => k + 1);
     };
 
-    /* ---------- Loading screen ---------- */
+    
+    // Force-regenerate quiz from backend using AI
+    const handleRegenerateQuiz = async () => {
+        if (isDemo || !courseSlug || !activeLessonId || regenerating) return;
+        setRegenerating(true);
+        setError("");
+        setResult(null);
+        setSelectedAnswers({});
+        setReviewFilter('all');
+        setQuizData(null);
+        setLoading(true);
+        try {
+            const response = await fetch(
+                `${API_BASE}/${encodeURIComponent(courseSlug)}/lessons/${encodeURIComponent(activeLessonId)}/quiz?regenerate=true`,
+                { headers: getHeaders() }
+            );
+            const data = await response.json();
+            if (!response.ok || data.success === false) {
+                throw new Error(data.message || data.error || "Failed to regenerate quiz.");
+            }
+            if (!data.quiz) throw new Error("No quiz data returned.");
+            setQuizData(data.quiz);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        } catch (err) {
+            console.error("Regenerate quiz error:", err);
+            setError(err.message || "Failed to regenerate quiz.");
+        } finally {
+            setRegenerating(false);
+            setLoading(false);
+        }
+    };
+/* ---------- Loading screen ---------- */
     if (loading) {
         return (
             <div className="qp-root">
@@ -748,6 +780,21 @@ export default function QuizPage() {
                         >
                             Try Again <span>↻</span>
                         </button>
+
+                        {!isDemo && (
+                            <button
+                                className="qp-regenerate-btn"
+                                disabled={regenerating}
+                                onClick={(e) => { ripple(e); handleRegenerateQuiz(); }}
+                                title="Generate a fresh set of questions using AI"
+                            >
+                                {regenerating ? (
+                                    <><span className="qp-button-spinner"></span> Generating...</>
+                                ) : (
+                                    <>✨ Regenerate Quiz</>
+                                )}
+                            </button>
+                        )}
                     </div>
 
                 </main>

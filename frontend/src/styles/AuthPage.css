@@ -1,3 +1,13 @@
+/* Centering wrapper for Auth screen */
+.auth-page-wrapper {
+    min-height: 100vh;
+    width: 100%;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    box-sizing: border-box;
+}
+
 /* Outer dark device-style frame */
 .auth-frame {
     width: min(1180px, 100%);
@@ -67,6 +77,10 @@
 
 /* Tablet and mobile: video on top, form below */
 @media (max-width: 900px) {
+    .auth-page-wrapper {
+        padding: 14px;
+    }
+
     .auth-frame {
         aspect-ratio: auto;
         height: auto;
@@ -92,6 +106,10 @@
 }
 
 @media (max-width: 640px) {
+    .auth-page-wrapper {
+        padding: 0;
+    }
+
     .auth-frame {
         width: 100%;
         min-height: 100vh;

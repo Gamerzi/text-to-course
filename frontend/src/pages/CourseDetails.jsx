@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ProgressBar } from "../components/ProgressBar";
+import ErrorPage from "../components/ErrorPage.jsx";
+import { getTopicLogo } from "../utils/topicHelpers.js";
 
 import "../styles/CourseDetails.css";
 
@@ -37,6 +39,7 @@ export default function CourseDetails() {
     const [course, setCourse] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [reloadKey, setReloadKey] = useState(0);
 
     // Share states
     const [shareOpen, setShareOpen] = useState(false);
@@ -377,6 +380,7 @@ export default function CourseDetails() {
     const lessons = course.lessons || [];
     const sharedCount = (course.sharedWith || []).length;
     const doneIds = new Set((progress?.completedLessons || []).map(String));
+    const topicLogo = getTopicLogo(course.title || "");
 
     // --------------------------------
     // UI

@@ -88,10 +88,18 @@ TEACHING REQUIREMENTS:
 - Do not invent lesson details that are not supported by the provided content.
 
 OUTPUT REQUIREMENTS:
-- Aim for approximately 400–600 words, depending on lesson complexity.
+- Aim for approximately 400-600 words, depending on lesson complexity.
 - Use complete, meaningful sentences.
-- Write as one continuous spoken explanation.
-- Do not use markdown headings, bullet points, or emojis.
+- Structure the explanation into clear paragraphs (2-4 sentences each).
+- Separate each paragraph with a blank line (use actual newlines between paragraphs).
+- When listing concepts, components, or steps, use numbered points like:
+  1. First point
+  2. Second point
+  3. Third point
+  Each numbered item should be on its own line.
+- Each paragraph should cover one concept or subtopic.
+- Do not use markdown headings (#, ##, ###).
+- Do not use asterisks (*) for bullet points.
 - Do not include an introduction about yourself.
 - Do not mention these instructions.
 - Return only the Hinglish explanation.
@@ -122,12 +130,13 @@ the lesson, rather than reading a short summary.
         JSON.stringify(rawContent)
     );
 
+    // Preserve paragraph structure — only trim leading/trailing quotes/whitespace,
+    // do NOT collapse internal whitespace so that \n\n paragraph breaks are kept.
     const explanation = (
         typeof rawContent === 'string' ? rawContent : ''
     )
         .trim()
-        .replace(/^["']|["']$/g, '')
-        .replace(/\s+/g, ' ');
+        .replace(/^["']|["']$/g, '');
 
     if (!explanation) {
         throw new Error(
