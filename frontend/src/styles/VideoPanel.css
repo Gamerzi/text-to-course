@@ -1,0 +1,39 @@
+.video-panel {
+    position: relative;
+    min-height: 0;
+    height: 100%;
+    overflow: hidden;
+    background: var(--void);
+}
+
+.video-panel__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% center;
+    /* keeps the hooded figure centered */
+    display: block;
+}
+
+/* Soft vignette + fade into the form panel on the right */
+.video-panel__shade {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        linear-gradient(90deg, rgba(15, 10, 29, 0) 72%, var(--panel) 100%),
+        radial-gradient(120% 90% at 50% 50%, transparent 60%, rgba(7, 4, 15, 0.6) 100%);
+}
+
+@media (max-width: 900px) {
+    .video-panel__video {
+        object-position: 50% 30%;
+    }
+
+    /* fade downward into the form instead of sideways */
+    .video-panel__shade {
+        background: linear-gradient(180deg, rgba(15, 10, 29, 0) 70%, var(--panel) 100%);
+    }
+}

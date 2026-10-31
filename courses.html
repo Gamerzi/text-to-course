@@ -1,292 +1,352 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LearnSpace | Course</title>
-    <style>
-        * {
-            box-sizing: border-box
-        }
-
-        body {
-            margin: 0;
-            background: #f6f7fb;
-            color: #172033;
-            font-family: Arial, sans-serif
-        }
-
-        header {
-            padding: 22px 7%;
-            background: #fff;
-            border-bottom: 1px solid #e5e7eb;
-            display: flex;
-            justify-content: space-between;
-            align-items: center
-        }
-
-        .logo {
-            font-size: 22px;
-            font-weight: 800;
-            color: #5145cd
-        }
-
-        main {
-            max-width: 1050px;
-            margin: 35px auto;
-            padding: 0 20px
-        }
-
-        .panel {
-            background: white;
-            padding: 24px;
-            border: 1px solid #e5e7eb;
-            border-radius: 16px;
-            margin-bottom: 22px
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 9px;
-            margin: 7px 0 15px;
-            font-size: 15px
-        }
-
-        button {
-            padding: 12px 17px;
-            background: #5145cd;
-            color: white;
-            border: 0;
-            border-radius: 9px;
-            cursor: pointer;
-            font-weight: 700
-        }
-
-        button:hover {
-            background: #4035b5
-        }
-
-        .lesson {
-            padding: 18px;
-            margin-top: 12px;
-            border: 1px solid #e5e7eb;
-            border-radius: 12px;
-            cursor: pointer;
-            display: flex;
-            gap: 15px;
-            align-items: center
-        }
-
-        .lesson:hover {
-            background: #f5f3ff;
-            border-color: #aaa1ff
-        }
-
-        .number {
-            background: #eeecff;
-            color: #5145cd;
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: bold
-        }
-
-        .muted {
-            color: #667085;
-            font-size: 14px
-        }
-
-        #status {
-            white-space: pre-wrap;
-            margin-top: 12px;
-            color: #b42318
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px
-        }
-
-        @media(max-width:650px) {
-            .grid {
-                grid-template-columns: 1fr
-            }
-
-            header {
-                padding: 18px
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course Lessons | LearnSpace</title>
+<style>
+:root{--bg:#f7f8fc;--card:#fff;--text:#172033;--muted:#657089;--accent:#315ee8;--line:#e7eaf2;--green:#16845b;--danger:#b42318}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+.top{background:#fff;border-bottom:1px solid var(--line);padding:18px max(22px,calc((100% - 1100px)/2));display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{font-weight:800;font-size:19px}.wrap{max-width:1000px;margin:42px auto;padding:0 20px}.eyebrow{color:var(--accent);font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+.title{font-size:clamp(28px,4vw,40px);margin:8px 0}.desc{color:var(--muted);line-height:1.6}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px;margin-top:28px}
+.lesson{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;text-align:left;transition:.18s;min-height:180px;color:inherit;width:100%}
+.lesson:hover{transform:translateY(-3px);border-color:#aabaff;box-shadow:0 12px 28px #243c7510}.num{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#edf1ff;color:var(--accent);font-weight:800}
+.lesson h2{font-size:19px;margin:15px 0 8px}.lesson p{color:var(--muted);line-height:1.5;font-size:14px}.link{color:var(--accent);font-weight:700;font-size:14px}
+.status{padding:16px 20px;background:#fff;border:1px solid var(--line);border-radius:12px;color:var(--muted);white-space:pre-wrap}.status.error{color:var(--danger)}
+.pill{border-radius:99px;background:#eef2ff;padding:7px 11px;font-size:12px;color:var(--accent);font-weight:700}
+.settings{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;margin:22px 0;display:grid;grid-template-columns:1fr 2fr auto;gap:12px;align-items:end}
+.field label{display:block;font-size:12px;font-weight:750;margin-bottom:6px}.field input{width:100%;padding:11px;border:1px solid #d5dbea;border-radius:9px;outline:none}.field input:focus,.search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px #315ee81c}
+.loadbtn,.primary-btn{border:0;border-radius:9px;padding:12px 16px;background:var(--accent);color:#fff;font-weight:750}.secondary-btn{border:1px solid var(--line);border-radius:9px;padding:11px 15px;background:#fff;color:var(--text);font-weight:700}
+.hint{font-size:12px;color:var(--muted);grid-column:1/-1;margin:0}.course-actions{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 22px}.share-main-btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:10px;padding:12px 16px;background:#e8f7ef;color:#116746;font-weight:800}.share-main-btn:disabled{opacity:.45;cursor:not-allowed}
+/* WhatsApp-inspired sharing dialog */
+.modal[hidden]{display:none!important}.modal{position:fixed;inset:0;z-index:1000;background:rgba(13,25,36,.58);display:flex;align-items:center;justify-content:center;padding:18px}
+.modal-card{background:#fff;width:min(100%,560px);max-height:min(86vh,760px);display:flex;flex-direction:column;border-radius:18px;overflow:hidden;box-shadow:0 24px 80px #0003}
+.modal-top{display:flex;align-items:center;gap:13px;padding:18px 20px;background:#075e54;color:white}.modal-top-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;background:#ffffff20;font-size:21px}.modal-title-wrap{flex:1;min-width:0}.modal-title{font-size:18px;font-weight:800;margin:0}.modal-subtitle{font-size:12px;opacity:.82;margin-top:3px}.icon-btn{border:0;background:transparent;color:inherit;font-size:27px;line-height:1;padding:4px 8px;border-radius:8px}.icon-btn:hover{background:#ffffff20}
+.modal-body{padding:18px 20px;overflow:auto}.share-course-name{font-size:14px;color:var(--muted);margin:0 0 15px}.search-wrap{position:relative}.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#758093;pointer-events:none}.search-input{width:100%;padding:13px 14px 13px 42px;border:1px solid #dbe1e8;border-radius:12px;outline:none;background:#f8fafc}
+.search-help{font-size:12px;color:var(--muted);margin:9px 2px 14px}.search-status{font-size:13px;color:var(--muted);padding:8px 2px;white-space:pre-wrap}.search-status.error{color:var(--danger)}.search-status.success{color:var(--green)}
+.user-list{display:flex;flex-direction:column;gap:4px}.user-row{display:flex;align-items:center;gap:12px;padding:11px 9px;border-radius:12px;border:1px solid transparent}.user-row:hover{background:#f6f8fa;border-color:#eef1f4}.avatar{width:46px;height:46px;flex:0 0 46px;border-radius:50%;display:grid;place-items:center;background:#d8f3e5;color:#075e54;font-weight:800;font-size:16px;text-transform:uppercase}.user-info{min-width:0;flex:1}.user-name{font-weight:750;font-size:14px;overflow-wrap:anywhere}.user-email{color:var(--muted);font-size:12px;margin-top:4px;overflow-wrap:anywhere}.share-user-btn{border:0;border-radius:999px;padding:9px 14px;background:#e3f4ec;color:#08724d;font-weight:800;font-size:13px;min-width:80px}.share-user-btn:hover{background:#ccebdc}.share-user-btn:disabled{opacity:.65;cursor:wait}.empty-state{padding:28px 12px;text-align:center;color:var(--muted);font-size:14px}.empty-icon{font-size:28px;margin-bottom:9px}.modal-footer{padding:13px 20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px;background:#fafbfc}.footer-note{font-size:11px;color:var(--muted);line-height:1.4}
+@media(max-width:700px){.settings{grid-template-columns:1fr}.hint{grid-column:auto}.wrap{margin:28px auto}.modal{padding:10px;align-items:flex-end}.modal-card{max-height:90vh;border-radius:18px 18px 10px 10px}.modal-body{padding:15px}.modal-top{padding:15px}.user-row{gap:9px}.avatar{width:42px;height:42px;flex-basis:42px}.share-user-btn{min-width:72px;padding:9px 11px}}
+</style>
 </head>
-
 <body>
-    <header>
-        <div class="logo">✦ LearnSpace</div>
-        <div class="muted">YOUR COURSE</div>
-    </header>
+<header class="top"><div class="brand">✦ LearnSpace</div><span class="pill">YOUR COURSE</span></header>
+<main class="wrap">
+  <div class="eyebrow">Course overview</div>
+  <section class="settings" aria-label="API settings">
+    <div class="field"><label for="slugInput">Course slug</label><input id="slugInput" placeholder="e.g. basic-math-part-1-5063"></div>
+    <div class="field"><label for="tokenInput">Bearer token (paste token only)</label><input id="tokenInput" type="password" autocomplete="off" placeholder="JWT token from your login API"></div>
+    <button class="loadbtn" id="loadBtn" type="button">Load course</button>
+    <p class="hint">Token is saved in this browser only. Do not share it or commit it to your code. The course slug can also be supplied in the URL.</p>
+  </section>
+  <h1 class="title" id="courseTitle">Loading course…</h1>
+  <p class="desc" id="courseDescription">Your lessons will appear here.</p>
+  <div class="course-actions"><button class="share-main-btn" id="openShareBtn" type="button" disabled><span aria-hidden="true">↗</span> Share course</button></div>
+  <div id="status" class="status">Loading lessons from the backend…</div>
+  <section id="lessons" class="grid" aria-label="Course lessons"></section>
+</main>
 
-    <main>
-        <section class="panel">
-            <h2>Course overview</h2>
-            <p class="muted">Enter your API details to load your course and lessons.</p>
-            <label for="api">Backend API URL</label>
-            <input id="api" value="http://localhost:5000/api" placeholder="http://localhost:5000/api">
+<div class="modal" id="shareModal" role="dialog" aria-modal="true" aria-labelledby="shareModalTitle" hidden>
+  <div class="modal-card">
+    <div class="modal-top">
+      <div class="modal-top-icon" aria-hidden="true">↗</div>
+      <div class="modal-title-wrap"><h2 class="modal-title" id="shareModalTitle">Share course</h2><div class="modal-subtitle">Choose a LearnSpace user</div></div>
+      <button class="icon-btn" id="closeShareBtn" type="button" aria-label="Close dialog">×</button>
+    </div>
+    <div class="modal-body">
+      <p class="share-course-name">Sharing: <strong id="shareCourseTitle">your course</strong></p>
+      <div class="search-wrap">
+        <span class="search-icon" aria-hidden="true">⌕</span>
+        <input class="search-input" id="userSearchInput" type="search" autocomplete="off" placeholder="Search name or email…" aria-label="Search registered users">
+      </div>
+      <p class="search-help">Type at least 2 characters. Matching users will appear below.</p>
+      <div class="search-status" id="searchStatus" role="status" aria-live="polite">Start typing to find a user.</div>
+      <div class="user-list" id="userResults"></div>
+    </div>
+    <div class="modal-footer"><span class="footer-note">Only share courses with people you trust.</span><button class="secondary-btn" id="doneShareBtn" type="button">Done</button></div>
+  </div>
+</div>
 
-            <div class="grid">
-                <div>
-                    <label for="slug">Course slug</label>
-                    <input id="slug" placeholder="e.g. basic-math-part-1-5063">
-                </div>
-                <div>
-                    <label for="token">Bearer token (JWT)</label>
-                    <input id="token" type="password" placeholder="Paste your JWT token here">
-                </div>
-            </div>
+<script>
+const API_BASE = 'http://localhost:5000/api';
+const params = new URLSearchParams(location.search);
+let courseSlug = params.get('courseSlug') || '';
+let loadedCourse = null;
+let searchDebounce = null;
+let activeSearchController = null;
 
-            <label><input id="remember" type="checkbox" style="width:auto;margin:0 7px 0 0"> Remember API settings on
-                this browser</label>
-            <p><button id="loadBtn">Load course</button></p>
-            <div id="status"></div>
-        </section>
+const slugInput = document.getElementById('slugInput');
+const tokenInput = document.getElementById('tokenInput');
+const statusEl = document.getElementById('status');
+const openShareBtn = document.getElementById('openShareBtn');
+const shareModal = document.getElementById('shareModal');
+const userSearchInput = document.getElementById('userSearchInput');
+const userResults = document.getElementById('userResults');
+const searchStatus = document.getElementById('searchStatus');
 
-        <section>
-            <h1 id="courseTitle">Choose a course</h1>
-            <p class="muted" id="courseDescription">Your lessons will appear here.</p>
-            <div id="lessons"></div>
-        </section>
-    </main>
+slugInput.value = courseSlug;
+tokenInput.value = localStorage.getItem('learnspace_bearer_token') || '';
 
-    <script>
-        const $ = id => document.getElementById(id);
-        const params = new URLSearchParams(location.search);
+function getToken() {
+  return (tokenInput.value || localStorage.getItem('learnspace_bearer_token') || localStorage.getItem('token') || localStorage.getItem('authToken') || localStorage.getItem('accessToken') || '').trim().replace(/^Bearer\s+/i, '');
+}
 
-        $('slug').value = params.get('courseSlug') || '';
+function headers() {
+  const result = { 'Content-Type': 'application/json' };
+  const token = getToken();
+  if (token) result.Authorization = `Bearer ${token}`;
+  return result;
+}
 
-        try {
-            const saved = JSON.parse(localStorage.getItem('learnspaceSettings') || '{}');
-            if (saved.api) $('api').value = saved.api;
-            if (saved.slug && !$('slug').value) $('slug').value = saved.slug;
-            if (saved.token) $('token').value = saved.token;
-            $('remember').checked = !!saved.remember;
-        } catch { }
+function esc(value = '') {
+  return String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
 
-        function getSettings() {
-            const api = $('api').value.trim().replace(/\/+$/, '');
-            const slug = $('slug').value.trim();
-            const token = $('token').value.trim();
-            return { api, slug, token };
-        }
+async function apiRequest(url, options = {}) {
+  const response = await fetch(url, {
+    ...options,
+    headers: { ...headers(), ...(options.headers || {}) },
+  });
+  let data;
+  try { data = await response.json(); }
+  catch { data = {}; }
+  if (!response.ok || data.success === false) {
+    throw new Error(data.message || `Request failed (${response.status})`);
+  }
+  return data;
+}
 
-        async function apiRequest(url, options = {}) {
-            const { token } = getSettings();
-            const headers = {
-                ...(options.headers || {}),
-                ...(token ? { Authorization: `Bearer ${token}` } : {})
-            };
+async function loadCourse() {
+  if (!courseSlug) {
+    statusEl.className = 'status error';
+    statusEl.textContent = 'Missing courseSlug. Open this page as courses.html?courseSlug=your-course-slug.';
+    document.getElementById('courseTitle').textContent = 'Choose a course';
+    openShareBtn.disabled = true;
+    return;
+  }
 
-            const response = await fetch(url, { ...options, headers });
-            const data = await response.json().catch(() => ({}));
+  statusEl.className = 'status';
+  statusEl.textContent = 'Loading course…';
+  openShareBtn.disabled = true;
 
-            if (!response.ok) {
-                throw new Error(data.message || `Request failed: HTTP ${response.status}`);
-            }
-            return data;
-        }
+  try {
+    const data = await apiRequest(`${API_BASE}/courses/${encodeURIComponent(courseSlug)}`);
+    const course = data.course;
+    if (!course) throw new Error('Course data was not returned by the server.');
+    loadedCourse = course;
+    document.title = `${course.title || 'Course'} | LearnSpace`;
+    document.getElementById('courseTitle').textContent = course.title || 'Course lessons';
+    document.getElementById('courseDescription').textContent = course.description || 'Choose a lesson to view its notes, video, and voice explanation.';
+    document.getElementById('shareCourseTitle').textContent = course.title || courseSlug;
 
-        $('loadBtn').addEventListener('click', loadCourse);
-        $('slug').addEventListener('keydown', e => {
-            if (e.key === 'Enter') loadCourse();
-        });
+    const lessons = course.lessons || [];
+    statusEl.className = 'status';
+    statusEl.textContent = lessons.length ? `${lessons.length} lessons in this course` : 'No lessons found for this course.';
+    openShareBtn.disabled = false;
 
-        async function loadCourse() {
-            const { api, slug, token } = getSettings();
-            $('status').textContent = '';
-            $('lessons').innerHTML = '';
+    const grid = document.getElementById('lessons');
+    grid.replaceChildren();
+    lessons.forEach((lesson, index) => {
+      const card = document.createElement('button');
+      card.className = 'lesson';
+      card.type = 'button';
+      card.innerHTML = `<span class="num">${esc(lesson.lessonNumber || index + 1)}</span><h2>${esc(lesson.title || 'Untitled lesson')}</h2><p>${esc(lesson.learningObjective || lesson.subtopics?.slice(0, 2).join(' · ') || 'Open this lesson to explore the content.')}</p><span class="link">Open lesson →</span>`;
+      card.addEventListener('click', () => {
+        location.href = `lesson.html?courseSlug=${encodeURIComponent(courseSlug)}&lessonId=${encodeURIComponent(lesson.lessonId)}`;
+      });
+      grid.appendChild(card);
+    });
+  } catch (error) {
+    loadedCourse = null;
+    statusEl.className = 'status error';
+    statusEl.textContent = `Could not load course: ${error.message}. Check that the backend is running and you are logged in.`;
+    openShareBtn.disabled = true;
+  }
+}
 
-            if (!slug) {
-                $('status').textContent = 'Please enter your course slug.';
-                return;
-            }
+function setSearchStatus(message, type = '') {
+  searchStatus.textContent = message;
+  searchStatus.className = `search-status${type ? ` ${type}` : ''}`;
+}
 
-            if (!api) {
-                $('status').textContent = 'Please enter your backend API URL.';
-                return;
-            }
+function initialsFor(user) {
+  const name = String(user.name || user.email || '?').trim();
+  const parts = name.split(/\s+/).filter(Boolean);
+  return (parts.length > 1 ? parts[0][0] + parts[parts.length - 1][0] : name.slice(0, 2)).toUpperCase();
+}
 
-            if ($('remember').checked) {
-                localStorage.setItem('learnspaceSettings', JSON.stringify({
-                    api, slug, token, remember: true
-                }));
-            } else {
-                localStorage.removeItem('learnspaceSettings');
-            }
+function showEmptyState(title, detail = '') {
+  userResults.replaceChildren();
+  const empty = document.createElement('div');
+  empty.className = 'empty-state';
+  const icon = document.createElement('div');
+  icon.className = 'empty-icon';
+  icon.textContent = '⌕';
+  const strong = document.createElement('div');
+  strong.textContent = title;
+  empty.append(icon, strong);
+  if (detail) {
+    const p = document.createElement('p');
+    p.textContent = detail;
+    p.style.margin = '6px 0 0';
+    empty.appendChild(p);
+  }
+  userResults.appendChild(empty);
+}
 
-            $('status').textContent = 'Loading course...';
-            $('loadBtn').disabled = true;
+function renderUsers(users) {
+  userResults.replaceChildren();
+  if (!users.length) {
+    showEmptyState('No matching users found', 'Try another name or email address.');
+    setSearchStatus('No registered users matched your search.');
+    return;
+  }
 
-            try {
-                const data = await apiRequest(
-                    `${api}/courses/${encodeURIComponent(slug)}`
-                );
+  users.forEach(user => {
+    const row = document.createElement('div');
+    row.className = 'user-row';
 
-                const course = data.course;
-                if (!course) throw new Error('Course was not returned by the API.');
+    const avatar = document.createElement('div');
+    avatar.className = 'avatar';
+    avatar.textContent = initialsFor(user);
+    avatar.setAttribute('aria-hidden', 'true');
 
-                $('courseTitle').textContent = course.title || 'Your course';
-                $('courseDescription').textContent =
-                    course.description || `${course.lessons?.length || 0} lessons`;
+    const info = document.createElement('div');
+    info.className = 'user-info';
+    const name = document.createElement('div');
+    name.className = 'user-name';
+    name.textContent = user.name || 'Unnamed user';
+    const email = document.createElement('div');
+    email.className = 'user-email';
+    email.textContent = user.email || '';
+    info.append(name, email);
 
-                const lessons = course.lessons || [];
-                if (!lessons.length) {
-                    $('lessons').innerHTML = '<p class="muted">No lessons found in this course.</p>';
-                }
+    const shareButton = document.createElement('button');
+    shareButton.className = 'share-user-btn';
+    shareButton.type = 'button';
+    const alreadyShared = Array.isArray(loadedCourse?.sharedWith) && loadedCourse.sharedWith.some(entry => String(entry?._id || entry) === String(user._id));
+    shareButton.textContent = alreadyShared ? 'Shared' : 'Share';
+    shareButton.disabled = alreadyShared;
+    shareButton.addEventListener('click', () => shareWithUser(user, shareButton));
 
-                lessons.forEach((lesson, index) => {
-                    const card = document.createElement('div');
-                    card.className = 'lesson';
+    row.append(avatar, info, shareButton);
+    userResults.appendChild(row);
+  });
+  setSearchStatus(`${users.length} matching user${users.length === 1 ? '' : 's'}.`);
+}
 
-                    const number = document.createElement('div');
-                    number.className = 'number';
-                    number.textContent = String(lesson.lessonNumber || index + 1).padStart(2, '0');
+async function searchUsers() {
+  const query = userSearchInput.value.trim();
+  if (activeSearchController) activeSearchController.abort();
+  activeSearchController = null;
+  userResults.replaceChildren();
 
-                    const details = document.createElement('div');
-                    const title = document.createElement('strong');
-                    title.textContent = lesson.title || `Lesson ${index + 1}`;
+  if (query.length < 2) {
+    setSearchStatus('Type at least 2 characters to search.');
+    return;
+  }
 
-                    const subtitle = document.createElement('p');
-                    subtitle.className = 'muted';
-                    subtitle.textContent = lesson.learningObjective || 'Open lesson to view notes and video';
+  activeSearchController = new AbortController();
+  setSearchStatus('Searching registered users…');
+  const currentController = activeSearchController;
+  try {
+    const url = `${API_BASE}/courses/share/search-users?q=${encodeURIComponent(query)}`;
+    const response = await fetch(url, { headers: headers(), signal: currentController.signal });
+    let data;
+    try { data = await response.json(); } catch { data = {}; }
+    if (!response.ok || data.success === false) {
+      throw new Error(data.message || `Search failed (${response.status})`);
+    }
+    if (currentController !== activeSearchController) return;
+    renderUsers(Array.isArray(data.users) ? data.users : []);
+  } catch (error) {
+    if (error.name === 'AbortError') return;
+    userResults.replaceChildren();
+    setSearchStatus(`Unable to search users: ${error.message}`, 'error');
+  }
+}
 
-                    details.append(title, subtitle);
-                    card.append(number, details);
+async function shareWithUser(user, button) {
+  if (!loadedCourse || !courseSlug) {
+    setSearchStatus('Load a course before sharing it.', 'error');
+    return;
+  }
 
-                    card.addEventListener('click', () => {
-                        const query = new URLSearchParams({
-                            api,
-                            courseSlug: slug,
-                            lessonId: lesson.lessonId,
-                            ...(token ? { token } : {})
-                        });
-                        location.href = `lesson.html?${query.toString()}`;
-                    });
+  const originalText = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Sharing…';
+  try {
+    const data = await apiRequest(`${API_BASE}/courses/share`, {
+      method: 'POST',
+      body: JSON.stringify({ courseSlug, userId: user._id }),
+    });
+    button.textContent = 'Shared';
+    setSearchStatus(data.message || `Course shared with ${user.name || user.email}.`, 'success');
 
-                    $('lessons').appendChild(card);
-                });
+    // Keep local state in sync so this user cannot be selected again.
+    if (!Array.isArray(loadedCourse.sharedWith)) loadedCourse.sharedWith = [];
+    if (!loadedCourse.sharedWith.some(entry => String(entry?._id || entry) === String(user._id))) {
+      loadedCourse.sharedWith.push({ _id: user._id, name: user.name, email: user.email });
+    }
+  } catch (error) {
+    button.disabled = false;
+    button.textContent = originalText;
+    setSearchStatus(`Unable to share course: ${error.message}`, 'error');
+  }
+}
 
-                $('status').textContent = `Loaded ${lessons.length} lesson(s).`;
-                $('status').style.color = '#067647';
-            } catch (error) {
-                $('status').style.color = '#b42318';
-                $('status').textContent =
-                    `${error.message}\n\nCheck the API URL, course slug, JWT token, and backend server.`;
-            } finally {
-                $('loadBtn').disabled = false;
-            }
-        }
-    </script>
+function openShareDialog() {
+  if (!loadedCourse) return;
+  document.getElementById('shareCourseTitle').textContent = loadedCourse.title || courseSlug;
+  shareModal.hidden = false;
+  userSearchInput.value = '';
+  userResults.replaceChildren();
+  setSearchStatus('Start typing to find a user.');
+  window.setTimeout(() => userSearchInput.focus(), 0);
+}
+
+function closeShareDialog() {
+  shareModal.hidden = true;
+  if (searchDebounce) window.clearTimeout(searchDebounce);
+  if (activeSearchController) activeSearchController.abort();
+  activeSearchController = null;
+}
+
+document.getElementById('loadBtn').addEventListener('click', () => {
+  courseSlug = slugInput.value.trim();
+  if (!courseSlug) {
+    statusEl.className = 'status error';
+    statusEl.textContent = 'Enter your course slug first.';
+    return;
+  }
+  localStorage.setItem('learnspace_bearer_token', getToken());
+  const nextUrl = new URL(location.href);
+  nextUrl.searchParams.set('courseSlug', courseSlug);
+  history.replaceState({}, '', nextUrl);
+  loadCourse();
+});
+
+tokenInput.addEventListener('change', () => localStorage.setItem('learnspace_bearer_token', getToken()));
+openShareBtn.addEventListener('click', openShareDialog);
+document.getElementById('closeShareBtn').addEventListener('click', closeShareDialog);
+document.getElementById('doneShareBtn').addEventListener('click', closeShareDialog);
+shareModal.addEventListener('click', event => { if (event.target === shareModal) closeShareDialog(); });
+document.addEventListener('keydown', event => { if (event.key === 'Escape' && !shareModal.hidden) closeShareDialog(); });
+userSearchInput.addEventListener('input', () => {
+  if (searchDebounce) window.clearTimeout(searchDebounce);
+  searchDebounce = window.setTimeout(searchUsers, 300);
+});
+
+if (courseSlug) {
+  loadCourse();
+} else {
+  document.getElementById('courseTitle').textContent = 'Choose a course';
+  statusEl.textContent = 'Enter the course slug and bearer token above, then click Load course.';
+}
+</script>
 </body>
-
 </html>

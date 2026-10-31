@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LearnSpace | Login & Register</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            color: #f4f5ff;
+            background: #0b1020;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 950px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            overflow: hidden;
+            border: 1px solid #303750;
+            border-radius: 22px;
+            background: #141b30;
+            box-shadow: 0 20px 60px #0006;
+        }
+
+        .welcome {
+            padding: 45px;
+            background: linear-gradient(140deg, #30265e, #122e42);
+        }
+
+        .brand {
+            font-size: 25px;
+            font-weight: bold;
+            color: #a99aff;
+        }
+
+        .welcome h1 {
+            margin-top: 90px;
+            font-size: 42px;
+            line-height: 1.15;
+        }
+
+        .welcome p {
+            color: #b7c0da;
+            line-height: 1.7;
+        }
+
+        .form-container {
+            padding: 45px 35px;
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .subtitle {
+            color: #9ba8c7;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 25px;
+            padding: 5px;
+            background: #0b1020;
+            border-radius: 10px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            color: #b7c0da;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            color: white;
+            background: #6554d9;
+        }
+
+        .field {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #38415d;
+            border-radius: 9px;
+            color: white;
+            background: #0b1020;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #8b7cff;
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 65px;
+        }
+
+        .show-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: none;
+            color: #a99aff;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .submit {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 9px;
+            color: white;
+            background: linear-gradient(90deg, #7867ef, #508cf5);
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .submit:disabled {
+            opacity: .6;
+        }
+
+        .message {
+            display: none;
+            padding: 12px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .error {
+            color: #ffb5c0;
+            background: #57232e;
+        }
+
+        .success {
+            color: #a9f5ca;
+            background: #173e32;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .footer {
+            margin-top: 22px;
+            text-align: center;
+            color: #8995b4;
+            font-size: 12px;
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+
+            .welcome {
+                display: none;
+            }
+
+            .form-container {
+                padding: 30px 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="container">
+        <section class="welcome">
+            <div class="brand">LearnSpace.</div>
+            <h1>Learn something.<br>Build something.</h1>
+            <p>
+                Your learning journey starts here.
+                Sign in to access your courses or create an account
+                to start learning.
+            </p>
+        </section>
+
+        <section class="form-container">
+            <div class="brand">LearnSpace.</div>
+
+            <h2 id="heading">Welcome back</h2>
+            <p class="subtitle" id="subtitle">
+                Sign in to continue learning.
+            </p>
+
+            <div class="tabs">
+                <button class="tab active" id="loginTab" type="button">
+                    Login
+                </button>
+                <button class="tab" id="registerTab" type="button">
+                    Register
+                </button>
+            </div>
+
+            <div id="message" class="message" role="status"></div>
+
+            <form id="authForm">
+                <div class="field hidden" id="nameField">
+                    <label for="name">Full name</label>
+                    <input id="name" type="text" placeholder="Enter your full name" autocomplete="name">
+                </div>
+
+                <div class="field">
+                    <label for="email">Email address</label>
+                    <input id="email" type="email" placeholder="you@example.com" autocomplete="email" required>
+                </div>
+
+                <div class="field">
+                    <label for="password">Password</label>
+                    <div class="password-wrapper">
+                        <input id="password" type="password" placeholder="Enter your password" minlength="6"
+                            autocomplete="current-password" required>
+                        <button class="show-password" id="togglePassword" type="button">Show</button>
+                    </div>
+                </div>
+
+                <button class="submit" id="submitButton" type="submit">
+                    Login
+                </button>
+            </form>
+
+            <div class="footer">
+                © <span id="year"></span> LearnSpace
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Your Express backend URL
+        const API_URL = "http://localhost:5000/api/users";
+
+        const form = document.getElementById("authForm");
+        const loginTab = document.getElementById("loginTab");
+        const registerTab = document.getElementById("registerTab");
+        const nameField = document.getElementById("nameField");
+        const nameInput = document.getElementById("name");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const submitButton = document.getElementById("submitButton");
+        const message = document.getElementById("message");
+
+        let mode = "login";
+
+        document.getElementById("year").textContent =
+            new Date().getFullYear();
+
+        function showMessage(text, type) {
+            message.textContent = text;
+            message.className = "message show " + type;
+        }
+
+        function setMode(newMode) {
+            mode = newMode;
+            const registering = mode === "register";
+
+            loginTab.classList.toggle("active", !registering);
+            registerTab.classList.toggle("active", registering);
+            nameField.classList.toggle("hidden", !registering);
+
+            nameInput.required = registering;
+            passwordInput.autocomplete = registering
+                ? "new-password"
+                : "current-password";
+
+            document.getElementById("heading").textContent =
+                registering ? "Create your account" : "Welcome back";
+
+            document.getElementById("subtitle").textContent =
+                registering
+                    ? "Create an account to get started."
+                    : "Sign in to continue learning.";
+
+            submitButton.textContent =
+                registering ? "Create account" : "Login";
+
+            message.className = "message";
+            form.reset();
+        }
+
+        loginTab.addEventListener("click", () => setMode("login"));
+        registerTab.addEventListener("click", () => setMode("register"));
+
+        document.getElementById("togglePassword")
+            .addEventListener("click", () => {
+                const showing = passwordInput.type === "text";
+
+                passwordInput.type = showing ? "password" : "text";
+
+                document.getElementById("togglePassword").textContent =
+                    showing ? "Show" : "Hide";
+            });
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const payload = {
+                email: emailInput.value.trim(),
+                password: passwordInput.value
+            };
+
+            if (mode === "register") {
+                payload.name = nameInput.value.trim();
+            }
+
+            submitButton.disabled = true;
+            submitButton.textContent =
+                mode === "register" ? "Registering..." : "Logging in...";
+
+            message.className = "message";
+
+            try {
+                const response = await fetch(`${API_URL}/${mode}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success || !data.token) {
+                    throw new Error(data.message || "Authentication failed.");
+                }
+
+                // Store the JWT returned by your backend.
+                localStorage.setItem("token", data.token);
+
+                showMessage(
+                    mode === "register"
+                        ? "Registration successful!"
+                        : "Login successful!",
+                    "success"
+                );
+
+                // Redirect to your existing courses page.
+                setTimeout(() => {
+                    window.location.href = "./courses.html";
+                }, 700);
+
+            } catch (error) {
+                showMessage(
+                    error.message ||
+                    "Could not connect to the server. Check your backend.",
+                    "error"
+                );
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent =
+                    mode === "register" ? "Create account" : "Login";
+            }
+        });
+    </script>
+</body>
+
+</html>

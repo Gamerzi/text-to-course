@@ -242,7 +242,7 @@ courseSchema.statics.enrichLesson = async function (
             },
         },
         {
-            returnDocument: 'after',
+            new: true,
             runValidators: true,
         }
     );
@@ -250,9 +250,7 @@ courseSchema.statics.enrichLesson = async function (
 
 /*
  * Update ONLY one lesson.
- *
  * lessonId and lessonNumber are never changed.
- * The video field is saved along with the lesson content.
  */
 courseSchema.statics.updateLesson = async function (
     courseSlug,
@@ -278,11 +276,7 @@ courseSchema.statics.updateLesson = async function (
         'lessons.$.isEnriched': true,
     };
 
-    /*
-     * Only include video if the agent returned the field.
-     * This prevents accidentally erasing a video if video
-     * wasn't part of the update.
-     */
+    // Preserve the existing video if none was supplied.
     if (
         Object.prototype.hasOwnProperty.call(
             updatedLesson,
@@ -302,7 +296,7 @@ courseSchema.statics.updateLesson = async function (
             $set: updateFields,
         },
         {
-            returnDocument: 'after',
+            new: true,
             runValidators: true,
         }
     );
@@ -320,13 +314,20 @@ courseSchema.statics.updateLesson = async function (
 };
 
 /*
- * Share course with another user.
+ * Share course with another registered user.
+ * $addToSet prevents duplicate user IDs.
  */
 courseSchema.statics.shareCourseWithUser = async function (
     courseSlug,
     targetUserId
 ) {
-    return await this.findOneAndUpdate(
+    if (!courseSlug || !targetUserId) {
+        throw new Error(
+            'Course slug and target user ID are required'
+        );
+    }
+
+    const updatedCourse = await this.findOneAndUpdate(
         {
             courseSlug,
         },
@@ -336,14 +337,24 @@ courseSchema.statics.shareCourseWithUser = async function (
             },
         },
         {
-            returnDocument: 'after',
+            new: true,
             runValidators: true,
         }
-    ).populate('sharedWith', 'name email');
+    )
+        .populate('creator', 'name email')
+        .populate('sharedWith', 'name email');
+
+    if (!updatedCourse) {
+        const error = new Error('Course not found');
+        error.statusCode = 404;
+        throw error;
+    }
+
+    return updatedCourse;
 };
 
 /*
- * Get courses created by user.
+ * Get courses created by a user.
  */
 courseSchema.statics.getMyCourses = async function (userId) {
     return await this.find({
@@ -354,7 +365,7 @@ courseSchema.statics.getMyCourses = async function (userId) {
 };
 
 /*
- * Get courses shared with user.
+ * Get courses shared with a user.
  */
 courseSchema.statics.getSharedCourses = async function (userId) {
     return await this.find({
@@ -383,7 +394,9 @@ courseSchema.statics.deleteCourseByOwner = async function (
         throw error;
     }
 
-    if (course.creator.toString() !== userId.toString()) {
+    if (
+        course.creator.toString() !== userId.toString()
+    ) {
         const error = new Error(
             'Forbidden: Only the owner can delete this course'
         );

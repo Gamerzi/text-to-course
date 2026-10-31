@@ -1,0 +1,1565 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lumina — Learning Dashboard</title>
+  <style>
+    :root {
+      --bg: #090611;
+      --bg2: #120b20;
+      --card: #1b1429;
+      --elev: #251a38;
+      --violet: #9147ff;
+      --lav: #b98aff;
+      --soft: #d5b9ff;
+      --text: #fff;
+      --muted: #b7a9c9;
+      --border: rgba(145, 71, 255, .22);
+      --border2: rgba(185, 138, 255, .5);
+      --radius-lg: 28px;
+      --radius-md: 20px;
+      --radius-sm: 13px;
+      --gradient: linear-gradient(120deg, var(--violet), var(--lav));
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif
+    }
+
+    button,
+    input,
+    select {
+      font: inherit
+    }
+
+    button {
+      color: inherit
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible {
+      outline: 2px solid var(--lav);
+      outline-offset: 3px
+    }
+
+    body:before,
+    body:after {
+      content: "";
+      position: fixed;
+      z-index: -1;
+      border-radius: 50%;
+      filter: blur(110px);
+      pointer-events: none
+    }
+
+    body:before {
+      top: -220px;
+      left: -160px;
+      width: 520px;
+      height: 520px;
+      background: rgba(145, 71, 255, .16)
+    }
+
+    body:after {
+      bottom: -260px;
+      right: -180px;
+      width: 560px;
+      height: 560px;
+      background: rgba(185, 138, 255, .12)
+    }
+
+    .icon {
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      vertical-align: middle;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round
+    }
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      padding: 14px 3%;
+      background: rgba(18, 11, 32, .82);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(18px)
+    }
+
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      width: min(1280px, 94%);
+      margin: auto
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px 6px 2px;
+      background: none;
+      border: 0;
+      cursor: pointer
+    }
+
+    .brand-mark {
+      width: 26px;
+      height: 26px;
+      border-radius: 9px;
+      background: var(--gradient);
+      box-shadow: 0 0 16px rgba(145, 71, 255, .55)
+    }
+
+    .brand-name {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: 2px
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 4px;
+      padding: 5px;
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      background: rgba(27, 20, 41, .6)
+    }
+
+    .nav-link {
+      padding: 9px 16px;
+      border: 0;
+      border-radius: 50px;
+      background: transparent;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer
+    }
+
+    .nav-link:hover {
+      color: #fff
+    }
+
+    .nav-link.active {
+      color: #fff;
+      background: rgba(145, 71, 255, .22);
+      box-shadow: 0 0 0 1px rgba(185, 138, 255, .35), 0 0 18px rgba(145, 71, 255, .35)
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto
+    }
+
+    .nav-search,
+    .search-field,
+    .sort-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      background: rgba(9, 6, 17, .5);
+      color: var(--muted)
+    }
+
+    .nav-search {
+      width: 220px;
+      padding: 9px 14px
+    }
+
+    .nav-search input,
+    .search-field input,
+    .modal-input input {
+      flex: 1;
+      min-width: 0;
+      border: 0;
+      background: transparent;
+      color: #fff;
+      outline: none
+    }
+
+    .nav-search input::placeholder,
+    .search-field input::placeholder,
+    .modal-input input::placeholder {
+      color: #8b7fa0
+    }
+
+    .circle-btn,
+    .menu-btn {
+      position: relative;
+      width: 38px;
+      height: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      background: rgba(27, 20, 41, .6);
+      color: var(--muted);
+      cursor: pointer
+    }
+
+    .circle-btn:hover,
+    .menu-btn:hover {
+      color: #fff;
+      border-color: var(--border2)
+    }
+
+    .avatar {
+      background: var(--gradient);
+      border: 0;
+      color: #fff
+    }
+
+    .notif-dot {
+      position: absolute;
+      top: 8px;
+      right: 9px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--soft);
+      box-shadow: 0 0 8px rgba(185, 138, 255, .9)
+    }
+
+    .menu-btn {
+      display: none
+    }
+
+    .mobile-nav {
+      display: none;
+      width: min(1280px, 94%);
+      margin: 14px auto 0;
+      padding-top: 14px;
+      border-top: 1px solid var(--border)
+    }
+
+    .mobile-nav button {
+      width: 100%;
+      padding: 12px 14px;
+      border: 0;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--muted);
+      text-align: left;
+      cursor: pointer
+    }
+
+    .mobile-nav button.active {
+      background: rgba(145, 71, 255, .16);
+      color: #fff
+    }
+
+    .main {
+      position: relative;
+      z-index: 1;
+      width: min(1280px, 94%);
+      margin: auto;
+      padding: 28px 0 60px
+    }
+
+    .welcome {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 34px;
+      animation: up .5s ease
+    }
+
+    .welcome h1 {
+      font-size: clamp(28px, 3.4vw, 42px);
+      letter-spacing: -1px;
+      margin: 0
+    }
+
+    .welcome p {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 14px
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px
+    }
+
+    .search-field,
+    .sort-field {
+      height: 46px;
+      padding: 0 16px;
+      background: var(--card)
+    }
+
+    .search-field {
+      width: 270px
+    }
+
+    .sort-field select {
+      border: 0;
+      background: transparent;
+      color: #fff;
+      font-size: 13.5px;
+      font-weight: 600;
+      appearance: none;
+      outline: none
+    }
+
+    .sort-label {
+      color: #8b7fa0;
+      font-size: 12px;
+      font-weight: 600
+    }
+
+    .primary,
+    .new-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      height: 46px;
+      padding: 0 22px;
+      border: 0;
+      border-radius: 50px;
+      background: var(--gradient);
+      font-weight: 750;
+      cursor: pointer;
+      box-shadow: 0 8px 24px rgba(145, 71, 255, .35)
+    }
+
+    .primary:hover,
+    .new-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.08)
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 30px;
+      animation: up .55s ease
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--card);
+      transition: .22s
+    }
+
+    .stat:hover {
+      transform: translateY(-3px);
+      border-color: var(--border2);
+      box-shadow: 0 0 0 1px rgba(145, 71, 255, .15), 0 10px 30px rgba(145, 71, 255, .18)
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 14px;
+      background: rgba(145, 71, 255, .14);
+      border: 1px solid var(--border);
+      color: var(--soft)
+    }
+
+    .stat-value {
+      display: block;
+      font-size: 24px;
+      font-weight: 800
+    }
+
+    .stat-label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 3px
+    }
+
+    .continue {
+      display: flex;
+      align-items: stretch;
+      gap: 20px;
+      margin-bottom: 34px;
+      padding: 36px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(135deg, var(--elev), var(--card) 60%);
+      animation: up .6s ease
+    }
+
+    .continue-content {
+      flex: 1 1 420px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      z-index: 1
+    }
+
+    .badge {
+      width: max-content;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 14px;
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      background: rgba(145, 71, 255, .16);
+      color: var(--soft);
+      font-size: 11px;
+      font-weight: 750
+    }
+
+    .continue h2 {
+      margin: 0;
+      font-size: clamp(22px, 2.6vw, 30px);
+      letter-spacing: -.6px
+    }
+
+    .meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600
+    }
+
+    .dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--muted)
+    }
+
+    .progress {
+      height: 8px;
+      border-radius: 20px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, .07)
+    }
+
+    .progress.large {
+      height: 10px;
+      max-width: 420px;
+      margin: 4px 0 6px
+    }
+
+    .fill {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: var(--gradient);
+      box-shadow: 0 0 12px rgba(145, 71, 255, .5);
+      transition: width .8s
+    }
+
+    .open-btn {
+      width: max-content;
+      height: 48px;
+      padding: 0 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      border: 0;
+      border-radius: 50px;
+      background: var(--gradient);
+      font-weight: 750;
+      cursor: pointer;
+      box-shadow: 0 10px 28px rgba(145, 71, 255, .4)
+    }
+
+    .orbital-wrap {
+      flex: 1 1 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .orbital {
+      position: relative;
+      width: 260px;
+      height: 260px
+    }
+
+    .orbital-grid {
+      position: absolute;
+      inset: 20px;
+      border-radius: 50%;
+      opacity: .35;
+      background-image: linear-gradient(rgba(185, 138, 255, .14) 1px, transparent 1px), linear-gradient(90deg, rgba(185, 138, 255, .14) 1px, transparent 1px);
+      background-size: 24px 24px;
+      mask-image: radial-gradient(circle, #000, transparent 72%)
+    }
+
+    .orbital svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%
+    }
+
+    .orbital ellipse {
+      fill: none;
+      stroke: rgba(185, 138, 255, .3);
+      stroke-width: 1
+    }
+
+    .orb-ring {
+      position: absolute;
+      border: 1px solid rgba(185, 138, 255, .28);
+      border-radius: 50%;
+      inset: 36px;
+      animation: spin 38s linear infinite
+    }
+
+    .orb-ring.b {
+      inset: 68px;
+      border-color: rgba(145, 71, 255, .3);
+      animation: spinR 46s linear infinite
+    }
+
+    .orb-core {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 64px;
+      height: 64px;
+      transform: translate(-50%, -50%) rotate(45deg);
+      border-radius: 22px;
+      background: var(--gradient);
+      box-shadow: 0 0 50px rgba(145, 71, 255, .55);
+      animation: pulse 5s ease-in-out infinite
+    }
+
+    .section {
+      margin-bottom: 38px
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 22px
+    }
+
+    .section-head h2 {
+      font-size: clamp(20px, 2vw, 25px);
+      margin: 0
+    }
+
+    .count {
+      min-width: 30px;
+      height: 30px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px;
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      background: rgba(145, 71, 255, .14);
+      color: var(--soft);
+      font-size: 13px;
+      font-weight: 700
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px
+    }
+
+    .card {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--card);
+      overflow: hidden;
+      transition: .22s
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: var(--border2);
+      box-shadow: 0 0 0 1px rgba(145, 71, 255, .15), 0 10px 30px rgba(145, 71, 255, .18)
+    }
+
+    .cover {
+      position: relative;
+      height: 150px;
+      overflow: hidden;
+      background: linear-gradient(150deg, var(--elev), var(--bg2));
+      cursor: pointer
+    }
+
+    .glyph {
+      position: absolute;
+      right: 10px;
+      bottom: -18px;
+      color: rgba(255, 255, 255, .07);
+      font-size: 96px;
+      font-weight: 800
+    }
+
+    .cover .shape {
+      position: absolute;
+      border: 1px solid rgba(185, 138, 255, .3);
+      border-radius: 50%
+    }
+
+    .v1 .a {
+      width: 70px;
+      height: 70px;
+      top: 20px;
+      left: 24px
+    }
+
+    .v1 .b {
+      width: 120px;
+      height: 120px;
+      top: -5px;
+      left: -1px;
+      border-color: rgba(145, 71, 255, .22)
+    }
+
+    .v1 .c {
+      width: 176px;
+      height: 176px;
+      top: -33px;
+      left: -29px;
+      border-color: rgba(145, 71, 255, .14)
+    }
+
+    .v1 .core {
+      position: absolute;
+      top: 46px;
+      left: 50px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--gradient);
+      box-shadow: 0 0 22px rgba(145, 71, 255, .75)
+    }
+
+    .v2:before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .5;
+      background-image: linear-gradient(rgba(185, 138, 255, .14) 1px, transparent 1px), linear-gradient(90deg, rgba(185, 138, 255, .14) 1px, transparent 1px);
+      background-size: 22px 22px;
+      transform: rotate(-8deg) scale(1.3)
+    }
+
+    .v2:after {
+      content: "";
+      position: absolute;
+      width: 140px;
+      height: 140px;
+      top: -45px;
+      right: -30px;
+      border-radius: 50%;
+      filter: blur(30px);
+      background: rgba(145, 71, 255, .45)
+    }
+
+    .v3:before {
+      content: "";
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      top: -50px;
+      left: -40px;
+      border-radius: 50%;
+      filter: blur(30px);
+      background: rgba(185, 138, 255, .3)
+    }
+
+    .v3:after {
+      content: "✦  •   ✦    •   •";
+      position: absolute;
+      inset: 30px;
+      color: var(--soft);
+      font-size: 20px;
+      letter-spacing: 18px;
+      opacity: .7
+    }
+
+    .v4:before {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      top: 0;
+      left: 30%;
+      border: 1px solid rgba(185, 138, 255, .28);
+      border-radius: 50%;
+      animation: spin 16s linear infinite
+    }
+
+    .v4:after {
+      content: "";
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      top: 58px;
+      left: calc(30% + 58px);
+      border-radius: 11px;
+      transform: rotate(20deg);
+      background: var(--gradient);
+      box-shadow: 0 0 24px rgba(145, 71, 255, .6)
+    }
+
+    .v5 {
+      background: linear-gradient(160deg, var(--elev), #1a1030)
+    }
+
+    .v5:after {
+      content: "〰 〰 〰";
+      position: absolute;
+      inset: 30px;
+      color: var(--soft);
+      font-size: 40px;
+      opacity: .4
+    }
+
+    .v6:before {
+      content: "";
+      position: absolute;
+      width: 70px;
+      height: 70px;
+      top: 24px;
+      left: 20px;
+      border: 1px solid rgba(185, 138, 255, .35);
+      border-radius: 14px;
+      transform: rotate(18deg)
+    }
+
+    .v6:after {
+      content: "◇   ⬡";
+      position: absolute;
+      left: 105px;
+      top: 48px;
+      color: var(--soft);
+      font-size: 52px;
+      opacity: .35
+    }
+
+    .v7:before {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      top: -30px;
+      left: -20px;
+      border-radius: 50%;
+      filter: blur(30px);
+      background: rgba(145, 71, 255, .4)
+    }
+
+    .v7:after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .4;
+      background-image: radial-gradient(rgba(213, 185, 255, .4) 1px, transparent 1px);
+      background-size: 16px 16px
+    }
+
+    .v8 {
+      background: linear-gradient(200deg, var(--bg2), var(--elev))
+    }
+
+    .v8:before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: .35;
+      background-image: linear-gradient(45deg, rgba(185, 138, 255, .16) 1px, transparent 1px), linear-gradient(-45deg, rgba(185, 138, 255, .16) 1px, transparent 1px);
+      background-size: 26px 26px
+    }
+
+    .v8:after {
+      content: "╳";
+      position: absolute;
+      inset: 20px;
+      color: var(--soft);
+      font-size: 100px;
+      opacity: .2;
+      text-align: center
+    }
+
+    .shared {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      z-index: 2;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 11px;
+      border: 1px solid rgba(255, 255, 255, .18);
+      border-radius: 50px;
+      background: rgba(9, 6, 17, .55);
+      color: #fff;
+      font-size: 10.5px;
+      font-weight: 700
+    }
+
+    .card-body {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      gap: 10px;
+      padding: 20px
+    }
+
+    .card-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px
+    }
+
+    .card h3 {
+      font-size: 16px;
+      line-height: 1.4;
+      margin: 0
+    }
+
+    .category {
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      background: rgba(145, 71, 255, .12);
+      color: var(--soft);
+      font-size: 10px;
+      font-weight: 700;
+      white-space: nowrap
+    }
+
+    .desc {
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.6;
+      margin: 0;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden
+    }
+
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 11.5px;
+      font-weight: 600
+    }
+
+    .shared-by {
+      color: var(--muted);
+      font-size: 11.5px;
+      margin: 0
+    }
+
+    .continue-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 4px;
+      padding: 11px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: rgba(145, 71, 255, .1);
+      color: var(--soft);
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer
+    }
+
+    .continue-link:hover {
+      background: rgba(145, 71, 255, .22);
+      border-color: var(--border2);
+      color: #fff
+    }
+
+    .empty {
+      padding: 28px 24px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-md);
+      background: rgba(27, 20, 41, .4);
+      color: var(--muted);
+      font-size: 13.5px
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(5, 3, 10, .72);
+      backdrop-filter: blur(6px)
+    }
+
+    .modal {
+      position: relative;
+      width: min(440px, 100%);
+      padding: 36px 30px 28px;
+      border: 1px solid var(--border2);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(165deg, var(--elev), var(--bg2));
+      box-shadow: 0 30px 80px rgba(0, 0, 0, .5);
+      text-align: center;
+      animation: pop .3s ease
+    }
+
+    .close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      background: rgba(9, 6, 17, .5);
+      color: var(--muted);
+      cursor: pointer
+    }
+
+    .mascot {
+      position: relative;
+      width: 110px;
+      height: 110px;
+      margin: 4px auto 18px
+    }
+
+    .mascot:before {
+      content: "";
+      position: absolute;
+      inset: -30px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(145, 71, 255, .35), transparent 70%);
+      filter: blur(10px)
+    }
+
+    .mascot-head {
+      position: absolute;
+      inset: 0;
+      border-radius: 34px;
+      background: linear-gradient(155deg, var(--lav), var(--violet));
+      box-shadow: 0 0 40px rgba(145, 71, 255, .55), inset 0 2px 10px rgba(255, 255, 255, .3)
+    }
+
+    .eye {
+      position: absolute;
+      top: 42px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #1b1429
+    }
+
+    .eye.one {
+      left: 30px
+    }
+
+    .eye.two {
+      right: 30px
+    }
+
+    .smile {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      width: 30px;
+      height: 14px;
+      border: 3px solid #1b1429;
+      border-top: 0;
+      border-radius: 0 0 20px 20px;
+      transform: translateX(-50%)
+    }
+
+    .modal h2 {
+      font-size: 22px;
+      margin: 0
+    }
+
+    .modal p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6
+    }
+
+    .modal-input {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 22px;
+      padding: 13px 16px;
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      background: rgba(9, 6, 17, .5)
+    }
+
+    .generate {
+      width: 100%;
+      height: 48px;
+      margin-top: 14px;
+      border: 0;
+      border-radius: 50px;
+      background: var(--gradient);
+      font-weight: 750;
+      cursor: pointer
+    }
+
+    .generate:disabled {
+      opacity: .45;
+      cursor: not-allowed
+    }
+
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 18px
+    }
+
+    .suggestions button {
+      padding: 9px 15px;
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      background: rgba(145, 71, 255, .08);
+      color: var(--soft);
+      cursor: pointer
+    }
+
+    .note {
+      color: #776b8a !important;
+      font-size: 11px !important
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 200;
+      max-width: 360px;
+      padding: 14px 18px;
+      border: 1px solid var(--border2);
+      border-radius: 14px;
+      background: var(--elev);
+      color: #fff;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, .4);
+      display: none
+    }
+
+    @keyframes up {
+      from {
+        opacity: 0;
+        transform: translateY(14px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    @keyframes spinR {
+      to {
+        transform: rotate(-360deg)
+      }
+    }
+
+    @keyframes pulse {
+      50% {
+        box-shadow: 0 0 65px rgba(145, 71, 255, .7)
+      }
+    }
+
+    @keyframes pop {
+      from {
+        opacity: 0;
+        transform: scale(.94) translateY(10px)
+      }
+
+      to {
+        opacity: 1;
+        transform: none
+      }
+    }
+
+    @media(max-width:1080px) {
+      .nav-links {
+        display: none
+      }
+
+      .nav-search {
+        width: 160px
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr)
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, 1fr)
+      }
+    }
+
+    @media(max-width:860px) {
+      .continue {
+        flex-direction: column
+      }
+
+      .orbital-wrap {
+        order: -1
+      }
+
+      .orbital {
+        width: 200px;
+        height: 200px
+      }
+    }
+
+    @media(max-width:720px) {
+      .navbar {
+        padding: 12px 4%
+      }
+
+      .nav-search {
+        display: none
+      }
+
+      .menu-btn {
+        display: inline-flex
+      }
+
+      .mobile-nav.show {
+        display: block
+      }
+
+      .main {
+        width: 92%;
+        padding: 22px 0 50px
+      }
+
+      .welcome {
+        flex-direction: column;
+        align-items: stretch
+      }
+
+      .controls {
+        flex-direction: column;
+        align-items: stretch
+      }
+
+      .search-field {
+        width: 100%
+      }
+
+      .new-btn {
+        width: 100%
+      }
+
+      .stats,
+      .grid {
+        grid-template-columns: 1fr
+      }
+
+      .continue {
+        padding: 26px 20px
+      }
+
+      .modal {
+        padding: 30px 20px 24px
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+      * {
+        animation-duration: .01ms !important;
+        transition-duration: .01ms !important
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="navbar">
+    <div class="nav-inner">
+      <button class="brand" id="brandBtn"><span class="brand-mark"></span><span
+          class="brand-name">LUMINA</span></button>
+      <nav class="nav-links">
+        <button class="nav-link active" data-nav="dashboard">Dashboard</button>
+        <button class="nav-link" data-nav="courses">My Courses</button>
+        <button class="nav-link" data-nav="explore">Explore</button>
+        <button class="nav-link" data-nav="resources">Resource Hub</button>
+      </nav>
+      <div class="nav-actions">
+        <label class="nav-search">
+          <svg class="icon">
+            <use href="#search"></use>
+          </svg>
+          <input id="topSearch" type="search" placeholder="Search courses...">
+        </label>
+        <button class="circle-btn" title="Notifications"><svg class="icon">
+            <use href="#bell"></use>
+          </svg><span class="notif-dot"></span></button>
+        <button class="circle-btn avatar" title="Profile"><svg class="icon">
+            <use href="#user"></use>
+          </svg></button>
+        <button class="menu-btn" id="menuBtn"><svg class="icon" id="menuIcon">
+            <use href="#menu"></use>
+          </svg></button>
+      </div>
+    </div>
+    <nav class="mobile-nav" id="mobileNav">
+      <button class="active">Dashboard</button><button>My Courses</button><button>Explore</button><button>Resource
+        Hub</button>
+    </nav>
+  </header>
+
+  <main class="main">
+    <section class="welcome">
+      <div>
+        <h1>Your learning space.</h1>
+        <p>Keep learning, keep growing. Your next skill starts here.</p>
+      </div>
+      <div class="controls">
+        <label class="search-field">
+          <svg class="icon">
+            <use href="#search"></use>
+          </svg>
+          <input id="courseSearch" type="search" placeholder="Search your courses...">
+        </label>
+        <label class="sort-field">
+          <span class="sort-label">Sort</span>
+          <select id="sortSelect">
+            <option value="recent">Recently accessed</option>
+            <option value="progress">Progress</option>
+            <option value="title">Title (A-Z)</option>
+          </select>
+          <svg class="icon">
+            <use href="#chevron"></use>
+          </svg>
+        </label>
+        <button class="new-btn" id="newCourseBtn"><svg class="icon">
+            <use href="#plus"></use>
+          </svg>New Course</button>
+      </div>
+    </section>
+
+    <section class="stats" id="stats"></section>
+    <section class="continue" id="continueSection"></section>
+
+    <section class="section">
+      <header class="section-head">
+        <h2>My Courses</h2><span class="count" id="myCount">0</span>
+      </header>
+      <div class="grid" id="myCourses"></div>
+    </section>
+
+    <section class="section">
+      <header class="section-head">
+        <h2>Shared Courses</h2><span class="count" id="sharedCount">0</span>
+      </header>
+      <div class="grid" id="sharedCourses"></div>
+    </section>
+  </main>
+
+
+
+  <div class="toast" id="toast"></div>
+
+  <!-- Inline SVG symbol library -->
+  <svg width="0" height="0" style="position:absolute">
+    <symbol id="search" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="7" />
+      <path d="m21 21-4.3-4.3" />
+    </symbol>
+    <symbol id="bell" viewBox="0 0 24 24">
+      <path d="M6 8a6 6 0 0 1 12 0c0 3.2 1 4.7 1.6 5.4a1 1 0 0 1-.8 1.6H5.2a1 1 0 0 1-.8-1.6C5 12.7 6 11.2 6 8Z" />
+      <path d="M9.5 18a2.5 2.5 0 0 0 5 0" />
+    </symbol>
+    <symbol id="plus" viewBox="0 0 24 24">
+      <path d="M12 5v14M5 12h14" />
+    </symbol>
+    <symbol id="menu" viewBox="0 0 24 24">
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </symbol>
+    <symbol id="close" viewBox="0 0 24 24">
+      <path d="M6 6l12 12M18 6 6 18" />
+    </symbol>
+    <symbol id="chevron" viewBox="0 0 24 24">
+      <path d="m6 9 6 6 6-6" />
+    </symbol>
+    <symbol id="book" viewBox="0 0 24 24">
+      <path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H20v15H5.5A1.5 1.5 0 0 0 4 20.5z" />
+      <path d="M4 19.5A1.5 1.5 0 0 0 5.5 21H20" />
+    </symbol>
+    <symbol id="clock" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3.5 2" />
+    </symbol>
+    <symbol id="check" viewBox="0 0 24 24">
+      <circle cx="12" cy="12" r="9" />
+      <path d="m8.5 12.5 2.5 2.5 5-5" />
+    </symbol>
+    <symbol id="flame" viewBox="0 0 24 24">
+      <path
+        d="M12 2c1 3-2 4-2 7a4 4 0 0 0 8 0c0-1-.3-2-1-3 2 1 3 3.5 3 6a7 7 0 1 1-14 0c0-4 2.5-6 3-8 .4 1 .8 1.8 1.5 2.2C10 5 11 3.3 12 2Z" />
+    </symbol>
+    <symbol id="sparkles" viewBox="0 0 24 24">
+      <path d="M12 3.5 13.6 9l5.4 1.6-5.4 1.6L12 17.7l-1.6-5.5L5 10.6 10.4 9z" fill="currentColor" stroke="none" />
+    </symbol>
+    <symbol id="arrow" viewBox="0 0 24 24">
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </symbol>
+    <symbol id="user" viewBox="0 0 24 24">
+      <circle cx="12" cy="8" r="3.5" />
+      <path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5" />
+    </symbol>
+    <symbol id="users" viewBox="0 0 24 24">
+      <circle cx="9" cy="8" r="3" />
+      <path d="M3 20c.6-3.2 2.8-5 6-5s5.4 1.8 6 5" />
+      <path d="M16 5.5a3 3 0 0 1 0 6M21 20c-.4-2-1.4-3.5-3-4.4" />
+    </symbol>
+  </svg>
+
+  <script>
+    /* =========================================================
+       DUMMY DATA
+       Replace this object later with your API response.
+    ========================================================= */
+    const dummyData = {
+      stats: {
+        totalCourses: 6,
+        inProgress: 4,
+        completed: 1,
+        learningStreakDays: 12
+      },
+      courses: [
+        { id: "react", courseSlug: "modern-react-development", title: "Modern React Development", description: "Build production-ready React applications with hooks, routing, performance and reusable components.", category: "React", totalLessons: 24, completedLessons: 16, completionPercentage: 67, lastAccessed: "2026-10-31T10:20:00", isOwner: true },
+        { id: "python-ai", courseSlug: "python-for-ai", title: "Python for AI & LLMs", description: "Learn Python fundamentals and the practical tools used for AI, automation and LLM applications.", category: "AI", totalLessons: 20, completedLessons: 9, completionPercentage: 45, lastAccessed: "2026-10-30T18:10:00", isOwner: true },
+        { id: "system-design", courseSlug: "system-design-basics", title: "System Design Basics", description: "Understand scalable architectures, APIs, caching, databases and distributed systems.", category: "Backend", totalLessons: 18, completedLessons: 7, completionPercentage: 39, lastAccessed: "2026-10-29T14:30:00", isOwner: true },
+        { id: "javascript", courseSlug: "modern-javascript", title: "Modern JavaScript", description: "Master ES6+, asynchronous JavaScript, browser APIs and clean coding patterns.", category: "JavaScript", totalLessons: 15, completedLessons: 15, completionPercentage: 100, lastAccessed: "2026-10-25T09:00:00", isOwner: true },
+        { id: "mongodb", courseSlug: "mongodb-mastery", title: "MongoDB Mastery", description: "Learn MongoDB data modeling, aggregation, indexes and practical application patterns.", category: "Database", totalLessons: 14, completedLessons: 6, completionPercentage: 43, lastAccessed: "2026-10-27T12:00:00", isOwner: true },
+        { id: "dsa", courseSlug: "dsa-for-interviews", title: "DSA for Interviews", description: "Practice arrays, strings, trees, graphs, dynamic programming and interview problem solving.", category: "DSA", totalLessons: 30, completedLessons: 4, completionPercentage: 13, lastAccessed: "2026-10-24T16:20:00", isOwner: true }
+      ],
+      sharedCourses: [
+        { id: "shared-ai-agents", courseSlug: "ai-agent-development", title: "AI Agent Development", description: "Build useful AI agents with tools, memory, retrieval and multi-step workflows.", category: "AI Agents", totalLessons: 16, completedLessons: 5, completionPercentage: 31, lastAccessed: "2026-10-30T11:00:00", sharedBy: "Rahul" },
+        { id: "shared-node", courseSlug: "nodejs-backend", title: "Node.js Backend Engineering", description: "Build APIs with Node.js, Express, authentication, databases and production practices.", category: "Node.js", totalLessons: 22, completedLessons: 11, completionPercentage: 50, lastAccessed: "2026-10-26T17:30:00", sharedBy: "Ayesha" }
+      ]
+    };
+
+    let courses = structuredClone(dummyData.courses);
+    let sharedCourses = structuredClone(dummyData.sharedCourses);
+    let search = "";
+    let sortBy = "recent";
+
+    const $ = id => document.getElementById(id);
+
+    function icon(name) {
+      return `<svg class="icon"><use href="#${name}"></use></svg>`;
+    }
+
+    function hashString(value = "") {
+      let hash = 0;
+      for (let i = 0; i < value.length; i++) hash = (hash * 31 + value.charCodeAt(i)) >>> 0;
+      return hash;
+    }
+    function coverVariant(id) { return (hashString(String(id)) % 8) + 1; }
+
+    function progressBar(percent, large = false) {
+      const p = Math.max(0, Math.min(100, percent));
+      return `<div class="progress ${large ? "large" : ""}"><div class="fill" style="width:${p}%"></div></div>`;
+    }
+
+    function renderStats() {
+      const s = dummyData.stats;
+      $("stats").innerHTML = [
+        ["book", "Total Courses", s.totalCourses, ""],
+        ["clock", "In Progress", s.inProgress, ""],
+        ["check", "Completed", s.completed, ""],
+        ["flame", "Learning Streak", s.learningStreakDays, " days"]
+      ].map(x => `<div class="stat">
+      <div class="stat-icon">${icon(x[0])}</div>
+      <div><strong class="stat-value">${x[2]}${x[3]}</strong><span class="stat-label">${x[1]}</span></div>
+    </div>`).join("");
+    }
+
+    function getContinueCourse() {
+      const inProgress = courses.filter(c => c.completionPercentage > 0 && c.completionPercentage < 100);
+      const pool = inProgress.length ? inProgress : courses;
+      return [...pool].sort((a, b) => new Date(b.lastAccessed) - new Date(a.lastAccessed))[0] || null;
+    }
+
+    function renderContinue() {
+      const c = getContinueCourse();
+      if (!c) { $("continueSection").style.display = "none"; return }
+      $("continueSection").style.display = "flex";
+      $("continueSection").innerHTML = `
+    <div class="continue-content">
+      <span class="badge">${icon("flame")} Continue Learning</span>
+      <h2>${escapeHtml(c.title)}</h2>
+      <div class="meta"><span>${c.completedLessons}/${c.totalLessons} lessons completed</span><span class="dot"></span><span>${c.completionPercentage}% complete</span></div>
+      ${progressBar(c.completionPercentage, true)}
+      <button class="open-btn" onclick="openCourse('${escapeAttr(c.courseSlug || c.id)}')">Open Course ${icon("arrow")}</button>
+    </div>
+    <div class="orbital-wrap">
+      <div class="orbital">
+        <span class="orbital-grid"></span>
+        <svg viewBox="0 0 320 320"><ellipse cx="160" cy="160" rx="138" ry="58"/><ellipse cx="160" cy="160" rx="58" ry="138"/></svg>
+        <span class="orb-ring"></span><span class="orb-ring b"></span><span class="orb-core"></span>
+      </div>
+    </div>`;
+    }
+
+    function renderCourses() {
+      const term = search.trim().toLowerCase();
+      let mine = term ? courses.filter(c => c.title.toLowerCase().includes(term) || (c.description || "").toLowerCase().includes(term)) : courses;
+      let shared = term ? sharedCourses.filter(c => c.title.toLowerCase().includes(term) || (c.description || "").toLowerCase().includes(term)) : sharedCourses;
+      mine = [...mine];
+      if (sortBy === "progress") mine.sort((a, b) => b.completionPercentage - a.completionPercentage);
+      else if (sortBy === "title") mine.sort((a, b) => a.title.localeCompare(b.title));
+      else mine.sort((a, b) => new Date(b.lastAccessed) - new Date(a.lastAccessed));
+
+      $("myCount").textContent = mine.length;
+      $("sharedCount").textContent = shared.length;
+      $("myCourses").innerHTML = mine.length ? mine.map(c => card(c, false)).join("") : `<p class="empty">No courses match your search.</p>`;
+      $("sharedCourses").innerHTML = shared.length ? shared.map(c => card(c, true)).join("") : `<p class="empty">Nothing shared with you yet. Courses shared by others will appear here.</p>`;
+    }
+
+    function card(c, isShared) {
+      const v = coverVariant(c.id);
+      return `<article class="card">
+    <div class="cover v${v}" onclick="openCourse('${escapeAttr(c.courseSlug || c.id)}')">
+      ${isShared ? `<span class="shared">${icon("users")} Shared with you</span>` : ""}
+      ${["1", "2", "3", "4", "5", "6", "7", "8"].includes(String(v)) ? `<span class="glyph">${escapeHtml(c.title.charAt(0).toUpperCase())}</span>` : ""}
+      ${v === 1 ? `<span class="shape a"></span><span class="shape b"></span><span class="shape c"></span><span class="core"></span>` : ""}
+    </div>
+    <div class="card-body">
+      <div class="card-head"><h3>${escapeHtml(c.title)}</h3>${c.category ? `<span class="category">${escapeHtml(c.category)}</span>` : ""}</div>
+      ${c.description ? `<p class="desc">${escapeHtml(c.description)}</p>` : ""}
+      <div class="progress-row"><span>${c.completedLessons}/${c.totalLessons} lessons</span><span>${c.completionPercentage}%</span></div>
+      ${progressBar(c.completionPercentage)}
+      ${isShared && c.sharedBy ? `<p class="shared-by">Shared by ${escapeHtml(c.sharedBy)}</p>` : ""}
+      <button class="continue-link" onclick="openCourse('${escapeAttr(c.courseSlug || c.id)}')">Continue Learning ${icon("arrow")}</button>
+    </div>
+  </article>`;
+    }
+
+    function openCourse(slug) {
+      showToast(`Demo: opening course "${slug}"`);
+    }
+
+    function showToast(message) {
+      const t = $("toast"); t.textContent = message; t.style.display = "block";
+      clearTimeout(showToast.timer); showToast.timer = setTimeout(() => t.style.display = "none", 2600);
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[m]));
+    }
+    function escapeAttr(s) { return escapeHtml(s).replace(/`/g, "&#096;"); }
+
+    function render() { renderStats(); renderContinue(); renderCourses(); }
+
+    $("courseSearch").addEventListener("input", e => { search = e.target.value; $("topSearch").value = search; renderCourses() });
+    $("topSearch").addEventListener("input", e => { search = e.target.value; $("courseSearch").value = search; renderCourses() });
+    $("sortSelect").addEventListener("change", e => { sortBy = e.target.value; renderCourses() });
+
+    $("newCourseBtn").addEventListener("click", () => { $("modalOverlay").hidden = false; $("courseTopic").focus() });
+    $("closeModal").addEventListener("click", closeModal);
+    $("modalOverlay").addEventListener("click", e => { if (e.target === $("modalOverlay")) closeModal() });
+    function closeModal() { $("modalOverlay").hidden = true; $("courseTopic").value = ""; $("generateBtn").disabled = true; }
+
+    $("courseTopic").addEventListener("input", e => { $("generateBtn").disabled = !e.target.value.trim() });
+    $("courseTopic").addEventListener("keydown", e => { if (e.key === "Enter" && !$("generateBtn").disabled) generateCourse() });
+    $("generateBtn").addEventListener("click", generateCourse);
+
+    document.querySelectorAll(".suggestions button").forEach(btn => btn.addEventListener("click", () => {
+      $("courseTopic").value = btn.textContent;
+      $("generateBtn").disabled = false;
+      generateCourse();
+    }));
+
+    async function generateCourse() {
+      const topic = $("courseTopic").value.trim();
+      if (!topic) return;
+      const btn = $("generateBtn");
+      btn.disabled = true; btn.textContent = "Generating...";
+      await new Promise(r => setTimeout(r, 900));
+      const id = "draft-" + Date.now();
+      courses.unshift({
+        id, courseSlug: id, title: topic, description: `A demo learning path for ${topic}. Replace this with your real course-generation API response.`,
+        category: "AI Generated", totalLessons: 12, completedLessons: 0, completionPercentage: 0,
+        lastAccessed: new Date().toISOString(), isOwner: true
+      });
+      closeModal(); render(); showToast(`"${topic}" was added to My Courses.`);
+    }
+
+    $("menuBtn").addEventListener("click", () => {
+      const nav = $("mobileNav"), iconEl = $("menuIcon use");
+      nav.classList.toggle("show");
+      iconEl.setAttribute("href", nav.classList.contains("show") ? "#close" : "#menu");
+    });
+    document.querySelectorAll("[data-nav]").forEach(btn => btn.addEventListener("click", () => showToast(`${btn.textContent} is a demo navigation item.`)));
+    $("brandBtn").addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+
+    render();
+  </script>
+</body>
+
+</html>

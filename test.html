@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LearnSphere</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0710;
+            --violet: #7c3aed;
+            --lav: #a78bfa;
+            --glow: #9d4edd;
+            --text: #e4defa;
+            --muted: #b8b3c7;
+            --glass: rgba(24, 19, 38, .62);
+            --stroke: rgba(167, 139, 250, .22);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        html {
+            scroll-behavior: smooth
+        }
+
+        body {
+            font-family: Inter, system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none
+        }
+
+        /* NAV */
+        .nav {
+            position: fixed;
+            inset: 0 0 auto 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 26px clamp(24px, 5vw, 80px)
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 18px;
+            color: #fff
+        }
+
+        .logo svg {
+            color: var(--lav)
+        }
+
+        .links {
+            display: flex;
+            gap: clamp(20px, 3vw, 44px);
+            font-size: 14px;
+            color: var(--muted)
+        }
+
+        .links a {
+            position: relative;
+            padding-bottom: 7px;
+            transition: color .2s
+        }
+
+        .links a:hover {
+            color: #fff
+        }
+
+        .links a.active {
+            color: #fff
+        }
+
+        .links a.active::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2px;
+            border-radius: 2px;
+            background: var(--lav)
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px
+        }
+
+        .btn {
+            font-size: 14px;
+            font-weight: 600;
+            padding: 10px 22px;
+            border-radius: 999px;
+            transition: transform .2s, box-shadow .2s
+        }
+
+        .btn-dark {
+            background: #1c1729;
+            color: #e9e4fb;
+            border: 1px solid rgba(255, 255, 255, .06)
+        }
+
+        .btn-light {
+            background: var(--lav);
+            color: #1a1033;
+            box-shadow: 0 0 22px rgba(167, 139, 250, .35)
+        }
+
+        .btn:hover {
+            transform: translateY(-1px)
+        }
+
+        /* HERO */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            min-height: 100svh;
+            overflow: hidden;
+            display: grid;
+            place-items: center;
+            padding: 120px 24px 80px;
+            background: radial-gradient(60% 55% at 50% 38%, rgba(124, 58, 237, .20), transparent 70%), var(--bg)
+        }
+
+        .glow {
+            position: absolute;
+            right: -8%;
+            top: -12%;
+            width: 46vw;
+            height: 46vw;
+            background: radial-gradient(circle, rgba(157, 78, 221, .22), transparent 65%);
+            filter: blur(30px);
+            pointer-events: none
+        }
+
+        .copy {
+            position: relative;
+            z-index: 3;
+            text-align: center;
+            max-width: 900px;
+            margin-top: -4vh
+        }
+
+        h1 {
+            font-weight: 700;
+            font-size: clamp(40px, 6.4vw, 92px);
+            line-height: 1.08;
+            letter-spacing: -.025em
+        }
+
+        h1 span {
+            display: block
+        }
+
+        .l1 {
+            color: #c9c3e6
+        }
+
+        .l2 {
+            background: linear-gradient(90deg, #a78bfa, #c9b3ff 60%, #b79cff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            filter: drop-shadow(0 0 22px rgba(167, 139, 250, .55))
+        }
+
+        .copy p {
+            margin: 28px auto 0;
+            max-width: 560px;
+            font-size: clamp(14px, 1.15vw, 17px);
+            line-height: 1.6;
+            color: var(--muted)
+        }
+
+        .cta {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 38px;
+            padding: 16px 34px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, #d9ccff, #b79cff);
+            color: #1a1033;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 0 0 6px rgba(167, 139, 250, .10), 0 0 46px rgba(167, 139, 250, .55);
+            transition: transform .2s, box-shadow .2s
+        }
+
+        .cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 0 8px rgba(167, 139, 250, .14), 0 0 60px rgba(167, 139, 250, .7)
+        }
+
+        .ripple {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid var(--lav);
+            transform: translate(-50%, -50%);
+            opacity: .9;
+            pointer-events: none;
+            animation: rip .9s ease-out forwards
+        }
+
+        @keyframes rip {
+            to {
+                width: 340px;
+                height: 340px;
+                opacity: 0
+            }
+        }
+
+        /* GLASS CARDS */
+        .card {
+            position: absolute;
+            z-index: 2;
+            padding: 14px 16px;
+            border-radius: 16px;
+            background: var(--glass);
+            border: 1px solid var(--stroke);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .04);
+            will-change: transform;
+            transition: transform .35s ease-out
+        }
+
+        .card small {
+            display: block;
+            font-size: 11px;
+            color: var(--muted)
+        }
+
+        .card b {
+            font-size: 13px;
+            color: #fff;
+            font-weight: 600
+        }
+
+        .line {
+            display: block;
+            height: 4px;
+            border-radius: 4px;
+            background: rgba(183, 156, 255, .35);
+            margin: 8px 0
+        }
+
+        .w60 {
+            width: 60%
+        }
+
+        .w90 {
+            width: 90%
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px
+        }
+
+        .mt {
+            margin-top: 10px
+        }
+
+        .ico {
+            display: grid;
+            place-items: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: rgba(124, 58, 237, .22);
+            border: 1px solid var(--stroke);
+            margin-bottom: 6px
+        }
+
+        .ico.round {
+            border-radius: 50%;
+            margin: 0
+        }
+
+        .foot {
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px !important
+        }
+
+        .foot em {
+            font-style: normal;
+            color: var(--lav)
+        }
+
+        .bar {
+            height: 5px;
+            border-radius: 5px;
+            background: #2c2440;
+            margin-top: 10px;
+            overflow: hidden
+        }
+
+        .bar i {
+            display: block;
+            height: 100%;
+            border-radius: 5px;
+            background: linear-gradient(90deg, #8b5cf6, #c4b5fd)
+        }
+
+        .bars {
+            width: 100%;
+            margin-top: 8px
+        }
+
+        .area {
+            width: 100%;
+            margin-top: 8px
+        }
+
+        .axis {
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px;
+            color: #8a82a6;
+            margin-top: 4px
+        }
+
+        .donut-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px
+        }
+
+        .donut-row>div {
+            flex: 1
+        }
+
+        /* positions (percent of hero, so it scales with the screen) */
+        .c1 {
+            left: -1%;
+            top: 34%;
+            width: 14%
+        }
+
+        .c2 {
+            left: -1%;
+            top: 46%;
+            width: 15%
+        }
+
+        .c3 {
+            left: 10%;
+            top: 64%;
+            width: 20%
+        }
+
+        .c4 {
+            left: 37%;
+            top: 78%;
+            width: 28%
+        }
+
+        .c5 {
+            right: -1%;
+            top: 42%;
+            width: 15%
+        }
+
+        .c6 {
+            right: 20%;
+            top: 68%;
+            width: 14%
+        }
+
+        .c7 {
+            right: 2%;
+            top: 72%;
+            width: 16%
+        }
+
+        @media (max-width:900px) {
+            .links {
+                display: none
+            }
+
+            .c1,
+            .c2,
+            .c5,
+            .c6 {
+                display: none
+            }
+
+            .c3 {
+                left: 4%;
+                width: 42%;
+                top: 74%
+            }
+
+            .c7 {
+                right: 4%;
+                width: 38%;
+                top: 76%
+            }
+
+            .c4 {
+                display: none
+            }
+        }
+
+        @media (prefers-reduced-motion:reduce) {
+            html {
+                scroll-behavior: auto
+            }
+
+            .card,
+            .cta,
+            .btn {
+                transition: none
+            }
+
+            .ripple {
+                animation: none;
+                display: none
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="nav">
+        <a class="logo" href="#top">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6"
+                stroke-linecap="round">
+                <circle cx="12" cy="12" r="9.5" />
+                <path d="M5 14c3-1 5-4 7-7 1 3 3 5 7 6M8 18c2-3 5-4 8-4" />
+            </svg>
+            <span>LearnSphere</span>
+        </a>
+        <nav class="links">
+            <a href="#top" class="active">Dashboard</a>
+            <a href="#courses">Courses</a>
+            <a href="#resources">Resources</a>
+            <a href="#about">About</a>
+        </nav>
+        <div class="actions">
+            <a href="#" class="btn btn-dark">Log in</a>
+            <a href="#" class="btn btn-light">Sign up</a>
+        </div>
+    </header>
+
+    <main id="top" class="hero">
+        <div class="glow"></div>
+
+        <div class="copy">
+            <h1><span class="l1">Learn New Skills,</span><span class="l2">Build Your Future</span></h1>
+            <p>Access world-class courses, expert instructors and flexible learning, anytime, anywhere.</p>
+            <a href="#courses" class="cta" id="startBtn">Start Learning
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+            </a>
+        </div>
+
+        <!-- floating glass cards -->
+        <div class="card c1" data-depth="10">
+            <i class="line w60"></i><i class="line w90"></i>
+        </div>
+
+        <div class="card c2" data-depth="14">
+            <small>Weekly activity</small>
+            <svg viewBox="0 0 100 40" class="bars">
+                <g fill="#a78bfa">
+                    <rect x="4" y="14" width="3" height="22" />
+                    <rect x="14" y="8" width="3" height="28" />
+                    <rect x="24" y="18" width="3" height="18" />
+                    <rect x="34" y="6" width="3" height="30" />
+                    <rect x="44" y="16" width="3" height="20" />
+                    <rect x="54" y="10" width="3" height="26" />
+                    <rect x="64" y="20" width="3" height="16" />
+                    <rect x="74" y="4" width="3" height="32" />
+                    <rect x="84" y="12" width="3" height="24" />
+                </g>
+            </svg>
+        </div>
+
+        <div class="card c3" data-depth="18">
+            <div class="row"><small>Progress analytics</small><small>⌄</small></div>
+            <svg viewBox="0 0 160 60" class="area">
+                <defs>
+                    <linearGradient id="ag" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="#a78bfa" stop-opacity=".35" />
+                        <stop offset="1" stop-color="#a78bfa" stop-opacity="0" />
+                    </linearGradient>
+                </defs>
+                <path d="M0 48 C20 44 28 30 46 34 S74 52 92 30 S124 12 160 8 V60 H0Z" fill="url(#ag)" />
+                <path d="M0 48 C20 44 28 30 46 34 S74 52 92 30 S124 12 160 8" fill="none" stroke="#b79cff"
+                    stroke-width="1.6" />
+            </svg>
+            <div class="axis">
+                <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span></div>
+        </div>
+
+        <div class="card c4" data-depth="12">
+            <div class="row">
+                <span class="ico round"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#c4b5fd"
+                        stroke-width="1.6">
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M8 14c2 1 6 1 8-1" />
+                    </svg></span>
+                <div><b>LearnSphere</b><small>Continue where you left off</small></div>
+            </div>
+            <small class="mt">Lorem ipsum dolor sit</small>
+            <div class="bar"><i style="width:68%"></i></div>
+        </div>
+
+        <div class="card c5" data-depth="16">
+            <small>Goals</small>
+            <div class="donut-row">
+                <svg viewBox="0 0 36 36" width="42" height="42">
+                    <circle cx="18" cy="18" r="13" fill="none" stroke="#2c2440" stroke-width="5" />
+                    <circle cx="18" cy="18" r="13" fill="none" stroke="#b79cff" stroke-width="5"
+                        stroke-dasharray="26 82" transform="rotate(-90 18 18)" stroke-linecap="round" />
+                </svg>
+                <div><i class="line w90"></i><i class="line w60"></i></div>
+            </div>
+        </div>
+
+        <div class="card c6" data-depth="20">
+            <span class="ico"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#c4b5fd"
+                    stroke-width="1.6" stroke-linecap="round">
+                    <rect x="4" y="5" width="16" height="12" rx="3" />
+                    <path d="M8 21h8M9 10h6" />
+                </svg></span>
+            <i class="line w90"></i><i class="line w60"></i>
+            <small class="foot">Lesson notes <em>›</em></small>
+        </div>
+
+        <div class="card c7" data-depth="14">
+            <span class="ico"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#c4b5fd"
+                    stroke-width="1.6" stroke-linecap="round">
+                    <rect x="4" y="4" width="16" height="16" rx="4" />
+                    <path d="M9 15V9l6-1v6" />
+                </svg></span>
+            <i class="line w90"></i><i class="line w60"></i>
+            <small class="foot">Study music <em>›</em></small>
+        </div>
+    </main>
+
+    <script>
+        (() => {
+            const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            // 1. Cards drift slightly with the mouse (depth = how far each card moves)
+            const cards = document.querySelectorAll('.card');
+            if (!reduce) {
+                addEventListener('mousemove', e => {
+                    const x = (e.clientX / innerWidth - 0.5) * 2;
+                    const y = (e.clientY / innerHeight - 0.5) * 2;
+                    cards.forEach(c => {
+                        const d = +c.dataset.depth || 10;
+                        c.style.transform = `translate(${x * -d}px, ${y * -d}px)`;
+                    });
+                });
+            }
+
+            // 2. Ripple on "Start Learning" (same effect as in the click frame)
+            const btn = document.getElementById('startBtn');
+            btn.addEventListener('click', () => {
+                if (reduce) return;
+                const r = document.createElement('span');
+                r.className = 'ripple';
+                btn.appendChild(r);
+                r.addEventListener('animationend', () => r.remove());
+            });
+
+            // 3. Nav: highlight the link for the section in view (ready for the scroll build)
+            const links = document.querySelectorAll('.links a');
+            links.forEach(a => a.addEventListener('click', () => {
+                links.forEach(l => l.classList.remove('active'));
+                a.classList.add('active');
+            }));
+        })();
+    </script>
+</body>
+
+</html>

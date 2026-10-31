@@ -1,0 +1,48 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Sora:wght@500;600;700&display=swap");
+
+/* Global design tokens – colours sampled from the video */
+:root {
+  --void: #07040f;
+  --panel: #0f0a1d;
+  --panel-soft: #171030;
+  --violet: #a855f7;
+  --violet-deep: #6d28d9;
+  --magenta: #d946ef;
+  --ink: #f3eaff;
+  --muted: #9d8fb9;
+  --line: rgba(168, 85, 247, 0.28);
+  --danger: #ff6b8b;
+
+  --font-display: "Sora", system-ui, sans-serif;
+  --font-body: "DM Sans", system-ui, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background: var(--void);
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--magenta);
+  outline-offset: 2px;
+}

@@ -2,19 +2,11 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <!-- Helps YouTube receive the Referer information needed by its player -->
-    <meta name="referrer" content="strict-origin-when-cross-origin" />
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LearnSpace - Lesson</title>
 
-    <!-- Syntax highlighting -->
-    <link rel="stylesheet" media="screen"
-        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css" />
-    <link rel="stylesheet" media="print"
-        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
 
     <style>
         * {
@@ -24,125 +16,72 @@
         body {
             margin: 0;
             font-family: Arial, sans-serif;
-            background: #f4f7fb;
-            color: #1f2937;
+            background: #f8fafc;
+            color: #1e293b;
         }
 
         header {
-            background: #172554;
-            color: white;
-            padding: 20px;
-        }
-
-        header h1 {
-            margin: 0 0 6px;
-            font-size: 25px;
-        }
-
-        header p {
-            margin: 0;
-            color: #cbd5e1;
-        }
-
-        main {
-            max-width: 1000px;
-            margin: 25px auto;
-            padding: 0 16px 40px;
-        }
-
-        .card {
             background: white;
-            border-radius: 12px;
-            padding: 22px;
-            margin-bottom: 20px;
-            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.07);
+            border-bottom: 1px solid #e2e8f0;
+            padding: 18px 30px;
         }
 
-        h2 {
-            margin-top: 0;
-            color: #172554;
+        .header-inner {
+            max-width: 1100px;
+            margin: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        h3 {
-            color: #1e40af;
-            margin-bottom: 8px;
+        .brand {
+            font-size: 22px;
+            font-weight: bold;
+            color: #2563eb;
         }
 
-        .muted {
+        .tagline {
+            font-size: 13px;
             color: #64748b;
+            margin-top: 3px;
         }
 
-        .video-container {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background: #0f172a;
-            border-radius: 10px;
-            overflow: hidden;
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
         }
 
-        .video-container iframe {
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-
-        /* Fallback shown when the page is opened via file:// */
-        .video-fallback {
-            position: relative;
-            display: block;
-            width: 100%;
-            height: 100%;
-            color: white;
-            text-decoration: none;
-        }
-
-        .video-fallback img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.55;
-        }
-
-        .video-fallback .fallback-text {
-            position: absolute;
-            inset: 0;
+        .top-actions,
+        .actions,
+        .voice-controls {
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
-        .video-fallback .play-icon {
-            width: 68px;
-            height: 48px;
-            background: #ff0000;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
+        .top-actions {
+            margin-bottom: 20px;
         }
 
         button,
         .button-link {
-            display: inline-block;
             border: none;
-            border-radius: 8px;
-            padding: 11px 16px;
             background: #2563eb;
             color: white;
-            font-size: 14px;
+            padding: 10px 16px;
+            border-radius: 8px;
             cursor: pointer;
+            font-size: 14px;
             text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
         button:hover,
         .button-link:hover {
-            background: #1d4ed8;
+            opacity: 0.9;
         }
 
         button:disabled {
@@ -151,247 +90,200 @@
         }
 
         .secondary {
-            background: #475569;
-        }
-
-        .secondary:hover {
-            background: #334155;
-        }
-
-        .status {
-            margin-top: 12px;
-            padding: 12px;
-            background: #eff6ff;
-            color: #1e40af;
-            border-radius: 8px;
-            white-space: pre-wrap;
-            overflow-wrap: anywhere;
-        }
-
-        .error {
-            background: #fef2f2;
-            color: #b91c1c;
-        }
-
-        .section {
-            padding: 14px 0;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .section:last-child {
-            border-bottom: none;
-        }
-
-        pre {
-            background: #0f172a;
-            color: #e2e8f0;
-            padding: 16px;
-            border-radius: 8px;
-            overflow-x: auto;
-            white-space: pre-wrap;
-            overflow-wrap: anywhere;
-        }
-
-        code {
-            font-family: Consolas, "Fira Code", monospace;
-        }
-
-        .code-explanation {
-            color: #475569;
-            line-height: 1.6;
-            margin: 0 0 12px;
-        }
-
-        .code-wrap {
-            position: relative;
-            margin-bottom: 16px;
-        }
-
-        .code-wrap:last-child {
-            margin-bottom: 0;
-        }
-
-        .code-wrap pre {
-            margin: 0;
-            padding: 0;
-            background: #282c34;
-            border-radius: 10px;
-            font-size: 14px;
-            line-height: 1.6;
-            tab-size: 4;
-        }
-
-        .code-wrap pre code.hljs {
-            display: block;
-            padding: 38px 18px 18px;
-            background: transparent;
-            overflow-x: auto;
-            white-space: pre;
-        }
-
-        .code-lang {
-            position: absolute;
-            top: 10px;
-            left: 14px;
-            z-index: 1;
-            font-size: 11px;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: #abb2bf;
-            font-family: Arial, sans-serif;
-        }
-
-        .copy-btn {
-            position: absolute;
-            top: 8px;
-            right: 10px;
-            z-index: 1;
-            padding: 4px 10px;
-            font-size: 12px;
-            background: #3e4451;
-            border-radius: 6px;
-        }
-
-        .copy-btn:hover {
-            background: #4b5363;
-        }
-
-        ul {
-            padding-left: 22px;
-        }
-
-        li {
-            margin-bottom: 8px;
-            line-height: 1.5;
-        }
-
-        audio {
-            width: 100%;
-            margin-top: 14px;
-        }
-
-        .actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 16px;
-        }
-
-        .top-actions {
-            margin-bottom: 20px;
+            background: #e2e8f0;
+            color: #1e293b;
         }
 
         .hidden {
-            display: none;
+            display: none !important;
         }
 
-        .print-only {
-            display: none;
+        .status {
+            padding: 12px 15px;
+            border-radius: 8px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
         }
 
-        /* ---------- PDF / print layout ---------- */
+        .status.error {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+        }
+
+        .lesson-number {
+            color: #2563eb;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            margin: 0 0 12px;
+            font-size: 34px;
+            line-height: 1.3;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #0f172a;
+        }
+
+        h3 {
+            color: #334155;
+        }
+
+        .objective {
+            color: #475569;
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        .muted {
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            overflow: hidden;
+            border-radius: 10px;
+            background: #0f172a;
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            inset: 0;
+        }
+
+        .section {
+            margin-bottom: 28px;
+        }
+
+        .section-content {
+            color: #475569;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        pre {
+            border-radius: 10px;
+            overflow-x: auto;
+            margin-top: 15px;
+            padding: 16px;
+            background: #f1f5f9;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .copy-button {
+            background: #0f172a;
+            padding: 7px 12px;
+            font-size: 13px;
+        }
+
+        .takeaways li,
+        .references li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .references a {
+            color: #2563eb;
+            text-decoration: none;
+            overflow-wrap: anywhere;
+        }
+
+        .references a:hover {
+            text-decoration: underline;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            resize: vertical;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+
+        @media (max-width: 700px) {
+            .container {
+                margin-top: 20px;
+            }
+
+            h1 {
+                font-size: 27px;
+            }
+
+            .header-inner {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .card {
+                padding: 18px;
+            }
+        }
+
         @media print {
-            @page {
-                margin: 14mm;
-            }
 
-            * {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-            }
-
-            body {
-                background: #fff;
-                color: #000;
-            }
-
-            header {
-                background: none;
-                color: #172554;
-                padding: 0 0 10px;
-                border-bottom: 2px solid #172554;
-            }
-
-            header h1 {
-                color: #172554;
-            }
-
-            header p {
-                color: #475569;
-            }
-
-            main {
-                margin: 14px 0 0;
-                padding: 0;
-                max-width: none;
-            }
-
+            header,
             .top-actions,
             #pageStatus,
-            .video-container,
-            .actions,
-            .video-note,
-            #voiceCard,
-            .copy-btn,
-            audio {
+            #updateLessonCard,
+            .voice-card,
+            .copy-button {
                 display: none !important;
             }
 
-            .print-only {
-                display: block;
+            body {
+                background: white;
+            }
+
+            .container {
+                max-width: none;
+                margin: 0;
+                padding: 0;
             }
 
             .card {
                 box-shadow: none;
-                border-radius: 0;
-                padding: 0;
-                margin-bottom: 14px;
-            }
-
-            h2,
-            h3 {
-                break-after: avoid;
-            }
-
-            .section,
-            li {
-                break-inside: avoid;
+                border: none;
             }
 
             a {
-                color: #1e40af;
-                text-decoration: none;
-            }
-
-            .code-wrap {
-                break-inside: auto;
-            }
-
-            .code-wrap pre {
-                background: #fafafa;
-                border: 1px solid #d1d5db;
-            }
-
-            .code-wrap pre code.hljs {
-                white-space: pre-wrap;
-                word-break: break-word;
-                overflow: visible;
-                font-size: 12px;
-                color: #383a42;
-            }
-
-            .code-lang {
-                color: #64748b;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .card {
-                padding: 16px;
-            }
-
-            header h1 {
-                font-size: 21px;
+                color: black !important;
             }
         }
     </style>
@@ -399,163 +291,250 @@
 
 <body>
     <header>
-        <h1>LearnSpace</h1>
-        <p>Learn one lesson at a time.</p>
+        <div class="header-inner">
+            <div>
+                <div class="brand">LearnSpace</div>
+                <div class="tagline">Learn one lesson at a time</div>
+            </div>
+        </div>
     </header>
 
-    <main>
+    <main class="container">
         <div class="top-actions">
-            <a href="courses.html" class="button-link secondary" id="backButton">
+            <a href="courses.html" class="button-link secondary">
                 ← Back to Lessons
             </a>
+
             <button id="downloadPdfButton" type="button" class="hidden">
                 ⬇ Download Notes (PDF)
             </button>
+
+            <button id="openQuizButton" type="button" class="hidden">
+                🧠 Take Lesson Quiz
+            </button>
+
+            <button id="updateLessonButton" type="button" class="hidden">
+                ✏️ Update Lesson
+            </button>
         </div>
 
-        <div id="pageStatus" class="status">Loading lesson...</div>
+        <div id="pageStatus" class="status">
+            Loading lesson...
+        </div>
 
-        <section id="lessonContent" class="hidden">
-            <div class="card">
-                <p class="muted" id="lessonNumber"></p>
-                <h2 id="lessonTitle">Lesson title</h2>
-                <p id="learningObjective"></p>
-            </div>
+        <section id="updateLessonCard" class="card hidden">
+            <h2>Update Lesson</h2>
+            <p class="muted">
+                Tell AI how you want to improve or change this lesson.
+            </p>
 
-            <div class="card">
-                <h2>Lesson Video</h2>
+            <textarea id="updateLessonPrompt" rows="5"
+                placeholder="Example: Make this lesson easier for beginners and add practical examples."></textarea>
 
-                <div id="videoContainer" class="video-container"></div>
-
-                <p id="videoTitle" class="muted"></p>
-                <p id="printVideoLink" class="print-only"></p>
-
-                <div class="actions">
-                    <a id="watchOnYouTube" class="button-link secondary" href="#" target="_blank"
-                        rel="noopener noreferrer">
-                        Watch on YouTube
-                    </a>
-                </div>
-
-                <p class="muted video-note">
-                    If the embedded player does not work, use the Watch on YouTube button.
-                </p>
-            </div>
-
-            <div class="card">
-                <h2>Overview</h2>
-                <p id="overview"></p>
-            </div>
-
-            <div class="card">
-                <h2>Lesson Explanation</h2>
-                <div id="sections"></div>
-            </div>
-
-            <div class="card" id="codeCard">
-                <h2>Code Example</h2>
-                <div id="codeBlocks"></div>
-            </div>
-
-            <div class="card">
-                <h2>Key Takeaways</h2>
-                <ul id="keyTakeaways"></ul>
-            </div>
-
-            <div class="card">
-                <h2>References</h2>
-                <ul id="citations"></ul>
-            </div>
-
-            <div class="card" id="voiceCard">
-                <h2>Listen in Hinglish</h2>
-                <p>
-                    Generate an audio explanation of this lesson in Hinglish.
-                </p>
-
-                <button id="generateVoiceButton" type="button">
-                    Generate Voice Explanation
+            <div class="actions" style="margin-top: 15px;">
+                <button id="submitLessonUpdate" type="button">
+                    Update Lesson
                 </button>
 
-                <div id="voiceStatus" class="status hidden"></div>
+                <button id="cancelLessonUpdate" type="button" class="secondary">
+                    Cancel
+                </button>
+            </div>
 
-                <audio id="voiceAudio" controls class="hidden"></audio>
+            <div id="updateLessonStatus" class="status hidden" style="margin-top: 15px;"></div>
+        </section>
 
-                <div class="actions">
-                    <button id="downloadAudioButton" type="button" class="secondary hidden">
-                        Download Audio
+        <div id="lessonContent" class="hidden">
+            <section class="card">
+                <div id="lessonNumber" class="lesson-number"></div>
+                <h1 id="lessonTitle"></h1>
+                <div id="lessonObjective" class="objective"></div>
+            </section>
+
+            <section id="videoCard" class="card hidden">
+                <h2>Video Tutorial</h2>
+                <div id="videoContainer" class="video-wrapper"></div>
+                <p id="videoFallback" class="muted hidden"></p>
+            </section>
+
+            <section class="card">
+                <h2>Overview</h2>
+                <div id="lessonOverview" class="section-content"></div>
+            </section>
+
+            <section id="sectionsCard" class="card hidden">
+                <h2>Lesson Content</h2>
+                <div id="lessonSections"></div>
+            </section>
+
+            <section id="codeCard" class="card hidden">
+                <div class="code-header">
+                    <h2 id="codeTitle">Code Example</h2>
+                    <button id="copyCodeButton" type="button" class="copy-button">
+                        Copy
                     </button>
                 </div>
 
-                <div id="hinglishTextContainer" class="hidden">
-                    <h3>Hinglish Explanation</h3>
-                    <p id="hinglishText"></p>
+                <p id="codeExplanation" class="section-content"></p>
+                <pre><code id="lessonCode"></code></pre>
+            </section>
+
+            <section id="takeawaysCard" class="card hidden">
+                <h2>Key Takeaways</h2>
+                <ul id="keyTakeaways" class="takeaways"></ul>
+            </section>
+
+            <section id="referencesCard" class="card hidden">
+                <h2>References</h2>
+                <ul id="references" class="references"></ul>
+            </section>
+
+            <section class="card voice-card">
+                <h2>Hinglish Voice Explanation</h2>
+                <p class="muted">
+                    Generate a Hinglish explanation of this lesson.
+                </p>
+
+                <div class="voice-controls">
+                    <button id="generateVoiceButton" type="button">
+                        🔊 Generate Voice
+                    </button>
+
+                    <button id="stopVoiceButton" type="button" class="secondary">
+                        Stop
+                    </button>
                 </div>
-            </div>
-        </section>
+
+                <div id="voiceStatus" class="status hidden" style="margin-top: 15px;"></div>
+
+                <audio id="voiceAudio" class="hidden" controls style="width: 100%; margin-top: 15px;"></audio>
+            </section>
+        </div>
     </main>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-    <script>
-        // --------------------------------------------------
-        // 1. Read page parameters
-        // --------------------------------------------------
+    <!-- PDF generation libraries: no browser print dialog required -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
+    <script>
         const params = new URLSearchParams(window.location.search);
 
+        const courseSlug =
+            params.get("courseSlug") ||
+            params.get("course") ||
+            "";
+
+        const lessonId =
+            params.get("lessonId") ||
+            params.get("lesson") ||
+            "";
+
         const API_BASE = (
-            params.get("api") ||
+            window.API_BASE ||
+            localStorage.getItem("apiBase") ||
             "http://localhost:5000/api"
         ).replace(/\/+$/, "");
 
-        const courseSlug = params.get("courseSlug");
-        const lessonId = params.get("lessonId");
+        function isJwt(value) {
+            if (typeof value !== "string") return false;
 
-        // Prefer a token already saved in this tab/session.
-        // Avoid putting JWT tokens into URLs in production.
-        const token =
-            sessionStorage.getItem("learnspace_token") ||
-            params.get("token") ||
-            "";
-
-        const pageStatus = document.getElementById("pageStatus");
-        const lessonContent = document.getElementById("lessonContent");
-
-        const voiceStatus = document.getElementById("voiceStatus");
-        const voiceAudio = document.getElementById("voiceAudio");
-        const generateVoiceButton =
-            document.getElementById("generateVoiceButton");
-        const downloadAudioButton =
-            document.getElementById("downloadAudioButton");
-
-        let currentAudioUrl = null;
-
-        // --------------------------------------------------
-        // 2. Helpers
-        // --------------------------------------------------
-
-        function showPageStatus(message, isError = false) {
-            pageStatus.textContent = message;
-            pageStatus.classList.remove("hidden", "error");
-
-            if (isError) {
-                pageStatus.classList.add("error");
-            }
+            return /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(
+                value.trim()
+            );
         }
 
-        function showVoiceStatus(message, isError = false) {
-            voiceStatus.textContent = message;
-            voiceStatus.classList.remove("hidden", "error");
+        function findTokenInObject(value, depth = 0) {
+            if (depth > 5 || value == null) return "";
 
-            if (isError) {
-                voiceStatus.classList.add("error");
+            if (typeof value === "string") {
+                const trimmed = value.trim();
+
+                if (isJwt(trimmed)) return trimmed;
+
+                try {
+                    const parsed = JSON.parse(trimmed);
+
+                    if (parsed && typeof parsed === "object") {
+                        return findTokenInObject(parsed, depth + 1);
+                    }
+                } catch { }
+
+                return "";
             }
+
+            if (typeof value !== "object") return "";
+
+            const preferredKeys = [
+                "token",
+                "jwt",
+                "accessToken",
+                "authToken",
+                "bearerToken",
+                "access_token"
+            ];
+
+            for (const key of preferredKeys) {
+                if (typeof value[key] === "string" && isJwt(value[key])) {
+                    return value[key].trim();
+                }
+            }
+
+            for (const nestedValue of Object.values(value)) {
+                const found = findTokenInObject(nestedValue, depth + 1);
+                if (found) return found;
+            }
+
+            return "";
+        }
+
+        function getStoredToken() {
+            const preferredKeys = [
+                "token",
+                "jwt",
+                "accessToken",
+                "authToken",
+                "bearerToken",
+                "access_token",
+                "auth",
+                "user",
+                "apiSettings",
+                "apiConfig",
+                "courseSettings",
+                "learnspaceSettings"
+            ];
+
+            const storages = [sessionStorage, localStorage];
+
+            for (const storage of storages) {
+                for (const key of preferredKeys) {
+                    const value = storage.getItem(key);
+                    if (!value) continue;
+
+                    const found = findTokenInObject(value);
+                    if (found) return found;
+                }
+            }
+
+            for (const storage of storages) {
+                for (let i = 0; i < storage.length; i++) {
+                    const value = storage.getItem(storage.key(i));
+                    if (!value) continue;
+
+                    const found = findTokenInObject(value);
+                    if (found) return found;
+                }
+            }
+
+            return "";
         }
 
         function getAuthHeaders() {
             const headers = {
                 "Content-Type": "application/json"
             };
+
+            const token = getStoredToken();
 
             if (token) {
                 headers.Authorization = `Bearer ${token}`;
@@ -565,7 +544,14 @@
         }
 
         async function readResponse(response) {
-            const data = await response.json().catch(() => ({}));
+            const text = await response.text();
+            let data = {};
+
+            try {
+                data = text ? JSON.parse(text) : {};
+            } catch {
+                data = { message: text };
+            }
 
             if (!response.ok) {
                 throw new Error(
@@ -578,379 +564,248 @@
             return data;
         }
 
+        const pageStatus = document.getElementById("pageStatus");
+        const lessonContent = document.getElementById("lessonContent");
+
+        const downloadPdfButton = document.getElementById("downloadPdfButton");
+        const updateLessonButton = document.getElementById("updateLessonButton");
+        const updateLessonCard = document.getElementById("updateLessonCard");
+        const updateLessonPrompt = document.getElementById("updateLessonPrompt");
+        const submitLessonUpdate = document.getElementById("submitLessonUpdate");
+        const cancelLessonUpdate = document.getElementById("cancelLessonUpdate");
+        const updateLessonStatus = document.getElementById("updateLessonStatus");
+
+        const lessonNumber = document.getElementById("lessonNumber");
+        const lessonTitle = document.getElementById("lessonTitle");
+        const lessonObjective = document.getElementById("lessonObjective");
+
+        const videoCard = document.getElementById("videoCard");
+        const videoContainer = document.getElementById("videoContainer");
+        const videoFallback = document.getElementById("videoFallback");
+
+        const lessonOverview = document.getElementById("lessonOverview");
+        const sectionsCard = document.getElementById("sectionsCard");
+        const lessonSections = document.getElementById("lessonSections");
+
+        const codeCard = document.getElementById("codeCard");
+        const codeTitle = document.getElementById("codeTitle");
+        const codeExplanation = document.getElementById("codeExplanation");
+        const lessonCode = document.getElementById("lessonCode");
+        const copyCodeButton = document.getElementById("copyCodeButton");
+
+        const takeawaysCard = document.getElementById("takeawaysCard");
+        const keyTakeaways = document.getElementById("keyTakeaways");
+
+        const referencesCard = document.getElementById("referencesCard");
+        const references = document.getElementById("references");
+
+        const generateVoiceButton = document.getElementById("generateVoiceButton");
+        const stopVoiceButton = document.getElementById("stopVoiceButton");
+        const voiceStatus = document.getElementById("voiceStatus");
+        const voiceAudio = document.getElementById("voiceAudio");
+
+        function showPageStatus(message, error = false) {
+            pageStatus.textContent = message;
+            pageStatus.classList.remove("hidden", "error");
+
+            if (error) pageStatus.classList.add("error");
+        }
+
+        function showVoiceStatus(message, error = false) {
+            voiceStatus.textContent = message;
+            voiceStatus.classList.remove("hidden", "error");
+
+            if (error) voiceStatus.classList.add("error");
+        }
+
         function getLessonFromResponse(data) {
-            // Supports common API response formats.
-            return (
-                data.lesson ||
-                data.data?.lesson ||
-                data.data ||
-                data
-            );
+            if (data?.lesson?.title) return data.lesson;
+            if (data?.data?.lesson?.title) return data.data.lesson;
+            if (data?.course?.lesson?.title) return data.course.lesson;
+            if (data?.data?.title) return data.data;
+            if (data?.title) return data;
+
+            return null;
         }
-
-        // Extracts an 11-character YouTube ID from an ID, a watch URL,
-        // a youtu.be URL or an embed URL.
-        function extractYouTubeId(video) {
-            const raw = String(video?.videoId || "").trim();
-
-            if (/^[\w-]{11}$/.test(raw)) {
-                return raw;
-            }
-
-            const candidates = [raw, String(video?.videoUrl || "").trim()];
-
-            for (const text of candidates) {
-                if (!text) continue;
-
-                const match = text.match(
-                    /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|embed\/|shorts\/|live\/))([\w-]{11})/i
-                );
-
-                if (match) {
-                    return match[1];
-                }
-            }
-
-            return "";
-        }
-
-        // Turns whatever the API sends for codeSnippet into a list of
-        // { code, language, explanation } objects.
-        function normalizeSnippets(value) {
-            if (value == null || value === "") return [];
-
-            if (typeof value === "string") {
-                return [{ code: value, language: "", explanation: "" }];
-            }
-
-            if (Array.isArray(value)) {
-                return value.flatMap(normalizeSnippets);
-            }
-
-            if (typeof value === "object") {
-                const code =
-                    value.code ??
-                    value.snippet ??
-                    value.codeSnippet ??
-                    value.content ??
-                    value.text ??
-                    value.example ??
-                    "";
-
-                const language = value.language ?? value.lang ?? "";
-                const explanation =
-                    value.explanation ?? value.description ?? value.title ?? "";
-
-                if (typeof code === "string" && code) {
-                    return [{
-                        code,
-                        language: String(language),
-                        explanation: String(explanation)
-                    }];
-                }
-
-                return [{
-                    code: JSON.stringify(value, null, 2),
-                    language: "json",
-                    explanation: ""
-                }];
-            }
-
-            return [{ code: String(value), language: "", explanation: "" }];
-        }
-
-        function renderCodeBlocks(value) {
-            const codeCard = document.getElementById("codeCard");
-            const container = document.getElementById("codeBlocks");
-            container.replaceChildren();
-
-            const snippets = normalizeSnippets(value);
-
-            snippets.forEach((snippet) => {
-                if (snippet.explanation) {
-                    const note = document.createElement("p");
-                    note.className = "code-explanation";
-                    note.textContent = snippet.explanation;
-                    container.appendChild(note);
-                }
-
-                const wrap = document.createElement("div");
-                wrap.className = "code-wrap";
-
-                const pre = document.createElement("pre");
-                const code = document.createElement("code");
-                code.textContent = snippet.code;
-
-                const lang = snippet.language.toLowerCase().trim();
-
-                // Use the declared language if highlight.js knows it,
-                // otherwise let highlight.js auto-detect.
-                if (window.hljs) {
-                    if (lang && hljs.getLanguage(lang)) {
-                        code.className = "language-" + lang;
-                    }
-                    try {
-                        hljs.highlightElement(code);
-                    } catch (e) {
-                        console.warn("Highlighting failed:", e);
-                    }
-                }
-
-                const label = document.createElement("span");
-                label.className = "code-lang";
-                label.textContent =
-                    (code.result && code.result.language) || lang || "code";
-
-                const copyBtn = document.createElement("button");
-                copyBtn.type = "button";
-                copyBtn.className = "copy-btn";
-                copyBtn.textContent = "Copy";
-                copyBtn.addEventListener("click", async () => {
-                    try {
-                        await navigator.clipboard.writeText(snippet.code);
-                        copyBtn.textContent = "Copied!";
-                    } catch {
-                        copyBtn.textContent = "Press Ctrl+C";
-                    }
-                    setTimeout(() => (copyBtn.textContent = "Copy"), 1500);
-                });
-
-                pre.appendChild(code);
-                wrap.append(label, copyBtn, pre);
-                container.appendChild(wrap);
-            });
-
-            codeCard.classList.toggle("hidden", snippets.length === 0);
-        }
-
-        // --------------------------------------------------
-        // 3. Render YouTube video
-        // --------------------------------------------------
 
         function renderVideo(video) {
-            const container = document.getElementById("videoContainer");
-            const titleElement = document.getElementById("videoTitle");
-            const watchLink = document.getElementById("watchOnYouTube");
+            videoContainer.replaceChildren();
+            videoFallback.classList.add("hidden");
 
-            container.replaceChildren();
-
-            const videoId = extractYouTubeId(video);
-
-            // No usable video
-            if (!videoId) {
-                titleElement.textContent =
-                    "No video is available for this lesson.";
-                document.getElementById("printVideoLink").textContent = "";
-
-                if (video?.videoUrl && /^https?:\/\//i.test(video.videoUrl)) {
-                    watchLink.href = video.videoUrl;
-                    watchLink.classList.remove("hidden");
-                } else {
-                    watchLink.classList.add("hidden");
-                }
-
+            if (!video) {
+                videoCard.classList.add("hidden");
                 return;
             }
 
-            const watchUrl =
-                "https://www.youtube.com/watch?v=" +
-                encodeURIComponent(videoId);
+            let embedUrl = video.embedUrl || "";
 
-            document.getElementById("printVideoLink").textContent =
-                "Video: " + watchUrl;
+            if (!embedUrl && video.videoId) {
+                embedUrl =
+                    `https://www.youtube.com/embed/${encodeURIComponent(video.videoId)}`;
+            }
 
-            // The fallback link always works, whatever happens to the player.
-            watchLink.href = watchUrl;
-            watchLink.classList.remove("hidden");
-            titleElement.textContent = video.title || "Lesson video";
+            if (embedUrl) {
+                const iframe = document.createElement("iframe");
 
-            // YouTube rejects embeds from pages that are not served over
-            // http(s) (Error 153). When the file is opened by double-click
-            // (file://), show a clickable thumbnail instead of a broken player.
-            if (!/^https?:$/.test(window.location.protocol)) {
-                const fallback = document.createElement("a");
-                fallback.className = "video-fallback";
-                fallback.href = watchUrl;
-                fallback.target = "_blank";
-                fallback.rel = "noopener noreferrer";
+                iframe.src = embedUrl;
+                iframe.title = video.title || "Lesson video";
+                iframe.allow =
+                    "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+                iframe.allowFullscreen = true;
 
-                const thumb = document.createElement("img");
-                thumb.src =
-                    "https://img.youtube.com/vi/" +
-                    encodeURIComponent(videoId) +
-                    "/hqdefault.jpg";
-                thumb.alt = video.title || "Lesson video thumbnail";
-                thumb.referrerPolicy = "no-referrer";
-
-                const text = document.createElement("div");
-                text.className = "fallback-text";
-
-                const icon = document.createElement("div");
-                icon.className = "play-icon";
-                icon.textContent = "▶";
-
-                const line1 = document.createElement("strong");
-                line1.textContent = "Click to watch on YouTube";
-
-                const line2 = document.createElement("small");
-                line2.textContent =
-                    "Embedded playback needs this page to be served over " +
-                    "http://localhost (not file://).";
-
-                text.append(icon, line1, line2);
-                fallback.append(thumb, text);
-                container.appendChild(fallback);
-
+                videoContainer.appendChild(iframe);
+                videoCard.classList.remove("hidden");
                 return;
             }
 
-            // Normal embedded player
-            const embedParams = new URLSearchParams({
-                rel: "0",
-                playsinline: "1",
-                origin: window.location.origin
+            if (video.videoUrl) {
+                const link = document.createElement("a");
+
+                link.href = video.videoUrl;
+                link.target = "_blank";
+                link.rel = "noopener noreferrer";
+                link.textContent = video.title || "Open video";
+
+                videoFallback.replaceChildren(
+                    document.createTextNode("Watch video: "),
+                    link
+                );
+
+                videoFallback.classList.remove("hidden");
+                videoCard.classList.remove("hidden");
+                return;
+            }
+
+            videoCard.classList.add("hidden");
+        }
+
+        function renderSections(sections) {
+            lessonSections.replaceChildren();
+
+            if (!Array.isArray(sections) || sections.length === 0) {
+                sectionsCard.classList.add("hidden");
+                return;
+            }
+
+            sections.forEach(section => {
+                const wrapper = document.createElement("div");
+                wrapper.className = "section";
+
+                const heading = document.createElement("h3");
+                heading.textContent = section.subtopic || "Section";
+
+                const content = document.createElement("div");
+                content.className = "section-content";
+                content.textContent = section.content || "";
+
+                wrapper.append(heading, content);
+                lessonSections.appendChild(wrapper);
             });
 
-            const iframe = document.createElement("iframe");
-
-            iframe.src =
-                "https://www.youtube.com/embed/" +
-                encodeURIComponent(videoId) +
-                "?" +
-                embedParams.toString();
-
-            iframe.title = video.title || "Lesson video";
-            iframe.referrerPolicy = "strict-origin-when-cross-origin";
-            iframe.allow =
-                "accelerometer; autoplay; clipboard-write; encrypted-media; " +
-                "gyroscope; picture-in-picture; web-share";
-            iframe.allowFullscreen = true;
-
-            container.appendChild(iframe);
+            sectionsCard.classList.remove("hidden");
         }
 
-        // --------------------------------------------------
-        // 4. Render lesson content
-        // --------------------------------------------------
+        function renderCode(codeSnippet) {
+            if (!codeSnippet || !codeSnippet.code) {
+                codeCard.classList.add("hidden");
+                return;
+            }
+
+            codeTitle.textContent = codeSnippet.filename || "Code Example";
+            codeExplanation.textContent = codeSnippet.explanation || "";
+            lessonCode.textContent = codeSnippet.code;
+            lessonCode.className =
+                `language-${codeSnippet.language || "plaintext"}`;
+
+            codeCard.classList.remove("hidden");
+
+            if (window.hljs) {
+                hljs.highlightElement(lessonCode);
+            }
+        }
+
+        function renderTakeaways(items) {
+            keyTakeaways.replaceChildren();
+
+            if (!Array.isArray(items) || items.length === 0) {
+                takeawaysCard.classList.add("hidden");
+                return;
+            }
+
+            items.forEach(item => {
+                const li = document.createElement("li");
+                li.textContent = item;
+                keyTakeaways.appendChild(li);
+            });
+
+            takeawaysCard.classList.remove("hidden");
+        }
+
+        function renderReferences(items) {
+            references.replaceChildren();
+
+            if (!Array.isArray(items) || items.length === 0) {
+                referencesCard.classList.add("hidden");
+                return;
+            }
+
+            items.forEach(reference => {
+                const li = document.createElement("li");
+
+                if (reference.url) {
+                    const link = document.createElement("a");
+
+                    link.href = reference.url;
+                    link.target = "_blank";
+                    link.rel = "noopener noreferrer";
+                    link.textContent = reference.title || reference.url;
+
+                    li.appendChild(link);
+
+                    if (reference.description) {
+                        li.appendChild(
+                            document.createTextNode(` — ${reference.description}`)
+                        );
+                    }
+                } else {
+                    li.textContent =
+                        reference.title || reference.description || "";
+                }
+
+                references.appendChild(li);
+            });
+
+            referencesCard.classList.remove("hidden");
+        }
 
         function renderLesson(lesson) {
-            document.getElementById("lessonNumber").textContent =
-                lesson.lessonNumber != null
-                    ? `Lesson ${lesson.lessonNumber}`
-                    : "Lesson";
+            lessonNumber.textContent = lesson.lessonNumber
+                ? `Lesson ${lesson.lessonNumber}`
+                : "";
 
-            document.getElementById("lessonTitle").textContent =
-                lesson.title || "Untitled lesson";
-
-            document.getElementById("learningObjective").textContent =
-                lesson.learningObjective || "";
-
-            document.getElementById("overview").textContent =
-                lesson.overview || "No overview is available yet.";
+            lessonTitle.textContent = lesson.title || "Untitled Lesson";
+            lessonObjective.textContent = lesson.learningObjective || "";
+            lessonOverview.textContent = lesson.overview || "";
 
             renderVideo(lesson.video);
-
-            // Sections
-            const sectionsContainer = document.getElementById("sections");
-            sectionsContainer.replaceChildren();
-
-            if (Array.isArray(lesson.sections) && lesson.sections.length) {
-                lesson.sections.forEach((section) => {
-                    const wrapper = document.createElement("div");
-                    wrapper.className = "section";
-
-                    const heading = document.createElement("h3");
-                    heading.textContent = section.subtopic || "Topic";
-
-                    const paragraph = document.createElement("p");
-                    paragraph.textContent = section.content || "";
-
-                    wrapper.append(heading, paragraph);
-                    sectionsContainer.appendChild(wrapper);
-                });
-            } else {
-                sectionsContainer.textContent =
-                    "Lesson explanation has not been generated yet.";
-            }
-
-            // Code example
-            renderCodeBlocks(lesson.codeSnippet);
-
-            // Key takeaways
-            const takeawaysList = document.getElementById("keyTakeaways");
-            takeawaysList.replaceChildren();
-
-            if (
-                Array.isArray(lesson.keyTakeaways) &&
-                lesson.keyTakeaways.length
-            ) {
-                lesson.keyTakeaways.forEach((item) => {
-                    const li = document.createElement("li");
-                    li.textContent =
-                        typeof item === "string"
-                            ? item
-                            : item.text || JSON.stringify(item);
-
-                    takeawaysList.appendChild(li);
-                });
-            } else {
-                const li = document.createElement("li");
-                li.textContent = "No key takeaways available.";
-                takeawaysList.appendChild(li);
-            }
-
-            // Citations / references
-            const citationsList = document.getElementById("citations");
-            citationsList.replaceChildren();
-
-            if (
-                Array.isArray(lesson.citations) &&
-                lesson.citations.length
-            ) {
-                lesson.citations.forEach((citation) => {
-                    const li = document.createElement("li");
-
-                    const label =
-                        typeof citation === "string"
-                            ? citation
-                            : citation.title || citation.url || "Reference";
-
-                    const url =
-                        typeof citation === "object"
-                            ? citation.url || citation.link
-                            : null;
-
-                    if (
-                        url &&
-                        /^https?:\/\//i.test(url)
-                    ) {
-                        const anchor = document.createElement("a");
-                        anchor.href = url;
-                        anchor.textContent = label;
-                        anchor.target = "_blank";
-                        anchor.rel = "noopener noreferrer";
-                        li.appendChild(anchor);
-                    } else {
-                        li.textContent = label;
-                    }
-
-                    citationsList.appendChild(li);
-                });
-            } else {
-                const li = document.createElement("li");
-                li.textContent = "No references available.";
-                citationsList.appendChild(li);
-            }
+            renderSections(lesson.sections);
+            renderCode(lesson.codeSnippet);
+            renderTakeaways(lesson.keyTakeaways);
+            renderReferences(lesson.citations);
         }
-
-        // --------------------------------------------------
-        // 5. Load lesson from backend
-        // --------------------------------------------------
 
         async function loadLesson() {
             if (!courseSlug || !lessonId) {
                 showPageStatus(
                     "Missing courseSlug or lessonId in the URL.",
+                    true
+                );
+                return;
+            }
+
+            if (!getStoredToken()) {
+                showPageStatus(
+                    "No JWT token was found in browser storage. Check the token storage key used by Course Overview.",
                     true
                 );
                 return;
@@ -972,9 +827,9 @@
                 const data = await readResponse(response);
                 const lesson = getLessonFromResponse(data);
 
-                if (!lesson || !lesson.title) {
+                if (!lesson) {
                     throw new Error(
-                        "The API response did not contain a valid lesson."
+                        "Lesson data was not found in the API response."
                     );
                 }
 
@@ -982,209 +837,106 @@
 
                 pageStatus.classList.add("hidden");
                 lessonContent.classList.remove("hidden");
-                document
-                    .getElementById("downloadPdfButton")
-                    .classList.remove("hidden");
+                downloadPdfButton.classList.remove("hidden");
+                document.getElementById("openQuizButton").classList.remove("hidden");
+                updateLessonButton.classList.remove("hidden");
+
             } catch (error) {
                 console.error("Load lesson error:", error);
 
                 showPageStatus(
-                    `Unable to load lesson.\n${error.message}\n\n` +
-                    "Check that the backend is running, the courseSlug and " +
-                    "lessonId are correct, and your login token is valid.",
+                    `Unable to load lesson.\n${error.message}`,
                     true
                 );
             }
         }
 
-        // --------------------------------------------------
-        // 6. Generate Hinglish voice
-        // --------------------------------------------------
+        async function updateLesson() {
+            const prompt = updateLessonPrompt.value.trim();
 
-        // The backend may return ONE base64 string or an ARRAY of base64
-        // chunks (Sarvam TTS has a text-length limit, so long lessons are
-        // split). This collects them all into a flat array of strings.
-        function getAudioChunks(data) {
-            const raw =
-                data.audios ??
-                data.audioChunks ??
-                data.chunks ??
-                data.audio ??
-                data.audioBase64 ??
-                data.data?.audios ??
-                data.data?.audioChunks ??
-                data.data?.chunks ??
-                data.data?.audio ??
-                data.data?.audioBase64 ??
-                null;
+            if (!prompt) {
+                updateLessonStatus.textContent =
+                    "Please enter what you want to change.";
 
-            if (!raw) return [];
-
-            const list = Array.isArray(raw) ? raw : [raw];
-
-            return list
-                .map((item) =>
-                    typeof item === "string"
-                        ? item
-                        : item?.audio ??
-                        item?.audioBase64 ??
-                        item?.base64 ??
-                        item?.data ??
-                        ""
-                )
-                .filter((item) => typeof item === "string" && item.trim());
-        }
-
-        function getHinglishText(data) {
-            const text =
-                data.hinglishText ??
-                data.text ??
-                data.data?.hinglishText ??
-                data.data?.text ??
-                "";
-
-            return Array.isArray(text) ? text.join("\n\n") : String(text || "");
-        }
-
-        // Tolerant base64 decoder: strips data-URL prefixes and whitespace,
-        // accepts URL-safe base64, and repairs missing "=" padding.
-        function base64ToBytes(value) {
-            let b64 = String(value)
-                .trim()
-                .replace(/^data:[^;]+;base64,/i, "")
-                .replace(/\s+/g, "")
-                .replace(/-/g, "+")
-                .replace(/_/g, "/");
-
-            const remainder = b64.length % 4;
-
-            if (remainder === 1) {
-                throw new Error("Audio data is not valid base64.");
-            }
-            if (remainder === 2) b64 += "==";
-            if (remainder === 3) b64 += "=";
-
-            const binary = atob(b64);
-            const bytes = new Uint8Array(binary.length);
-
-            for (let i = 0; i < binary.length; i++) {
-                bytes[i] = binary.charCodeAt(i);
+                updateLessonStatus.classList.remove("hidden");
+                updateLessonStatus.classList.add("error");
+                return;
             }
 
-            return bytes;
-        }
+            if (!getStoredToken()) {
+                updateLessonStatus.textContent =
+                    "No JWT token was found in browser storage.";
 
-        function isWav(bytes) {
-            return (
-                bytes.length > 12 &&
-                String.fromCharCode(bytes[0], bytes[1], bytes[2], bytes[3]) === "RIFF" &&
-                String.fromCharCode(bytes[8], bytes[9], bytes[10], bytes[11]) === "WAVE"
-            );
-        }
-
-        function parseWav(bytes) {
-            const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-            let offset = 12;
-            let fmt = null;
-            let dataStart = -1;
-            let dataLength = 0;
-
-            while (offset + 8 <= bytes.length) {
-                const id = String.fromCharCode(
-                    bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3]
-                );
-                let size = view.getUint32(offset + 4, true);
-                const body = offset + 8;
-
-                if (id === "fmt ") {
-                    fmt = bytes.slice(body, body + size);
-                } else if (id === "data") {
-                    if (size === 0xffffffff || body + size > bytes.length) {
-                        size = bytes.length - body;
-                    }
-                    dataStart = body;
-                    dataLength = size;
-                    break;
-                }
-
-                offset = body + size + (size % 2);
-            }
-
-            if (!fmt || dataStart < 0) {
-                throw new Error("Unsupported WAV audio.");
-            }
-
-            return { fmt, data: bytes.subarray(dataStart, dataStart + dataLength) };
-        }
-
-        // Joins several WAV files into one valid WAV (a plain byte
-        // concatenation would leave extra headers that break playback).
-        function mergeWav(list) {
-            const parsed = list.map(parseWav);
-            const fmt = parsed[0].fmt;
-            const total = parsed.reduce((sum, item) => sum + item.data.length, 0);
-
-            const header = new Uint8Array(12 + 8 + fmt.length + 8);
-            const view = new DataView(header.buffer);
-
-            const writeText = (offset, text) => {
-                for (let i = 0; i < text.length; i++) {
-                    header[offset + i] = text.charCodeAt(i);
-                }
-            };
-
-            writeText(0, "RIFF");
-            view.setUint32(4, 4 + (8 + fmt.length) + (8 + total), true);
-            writeText(8, "WAVE");
-            writeText(12, "fmt ");
-            view.setUint32(16, fmt.length, true);
-            header.set(fmt, 20);
-            writeText(20 + fmt.length, "data");
-            view.setUint32(24 + fmt.length, total, true);
-
-            return new Blob([header, ...parsed.map((item) => item.data)], {
-                type: "audio/wav"
-            });
-        }
-
-        // Turns the chunk list into ONE playable Blob.
-        function buildAudioBlob(chunks, declaredFormat) {
-            const bytesList = chunks.map(base64ToBytes);
-            const allWav = bytesList.every(isWav);
-
-            if (allWav) {
-                if (bytesList.length === 1) {
-                    return { blob: new Blob([bytesList[0]], { type: "audio/wav" }), ext: "wav" };
-                }
-
-                try {
-                    return { blob: mergeWav(bytesList), ext: "wav" };
-                } catch (error) {
-                    console.warn("WAV merge failed, using raw bytes:", error);
-                }
-            }
-
-            const wavDeclared = String(declaredFormat || "").toLowerCase().includes("wav");
-
-            return {
-                blob: new Blob(bytesList, { type: wavDeclared ? "audio/wav" : "audio/mpeg" }),
-                ext: wavDeclared ? "wav" : "mp3"
-            };
-        }
-
-        generateVoiceButton.addEventListener("click", async () => {
-            if (!courseSlug || !lessonId) {
-                showVoiceStatus("Missing courseSlug or lessonId.", true);
+                updateLessonStatus.classList.remove("hidden");
+                updateLessonStatus.classList.add("error");
                 return;
             }
 
             try {
-                generateVoiceButton.disabled = true;
-                generateVoiceButton.textContent = "Generating voice...";
+                submitLessonUpdate.disabled = true;
+                submitLessonUpdate.textContent = "Updating...";
 
-                showVoiceStatus(
-                    "Generating the Hinglish explanation and audio. Please wait..."
+                updateLessonStatus.classList.remove("hidden", "error");
+                updateLessonStatus.textContent =
+                    "AI is updating this lesson. Please wait...";
+
+                const url =
+                    `${API_BASE}/courses/` +
+                    `${encodeURIComponent(courseSlug)}/` +
+                    `${encodeURIComponent(lessonId)}/update`;
+
+                const response = await fetch(url, {
+                    method: "PUT",
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({ prompt })
+                });
+
+                const data = await readResponse(response);
+                const updatedLesson = getLessonFromResponse(data);
+
+                if (!updatedLesson) {
+                    throw new Error(
+                        "The API did not return the updated lesson."
+                    );
+                }
+
+                renderLesson(updatedLesson);
+
+                updateLessonCard.classList.add("hidden");
+                updateLessonPrompt.value = "";
+                updateLessonStatus.classList.add("hidden");
+
+                showPageStatus(
+                    data.message || "Lesson updated successfully."
                 );
+
+                setTimeout(() => {
+                    pageStatus.classList.add("hidden");
+                }, 3000);
+
+                console.log("Lesson update result:", data);
+
+            } catch (error) {
+                console.error("Update lesson error:", error);
+
+                updateLessonStatus.textContent =
+                    `Unable to update lesson.\n${error.message}`;
+
+                updateLessonStatus.classList.remove("hidden");
+                updateLessonStatus.classList.add("error");
+
+            } finally {
+                submitLessonUpdate.disabled = false;
+                submitLessonUpdate.textContent = "Update Lesson";
+            }
+        }
+
+        async function generateVoice() {
+            try {
+                generateVoiceButton.disabled = true;
+                generateVoiceButton.textContent = "Generating...";
+
+                showVoiceStatus("Generating Hinglish explanation...");
 
                 const url =
                     `${API_BASE}/voice/` +
@@ -1196,68 +948,39 @@
                     headers: getAuthHeaders()
                 });
 
-                const data = await readResponse(response);
-
-                const chunks = getAudioChunks(data);
-                const hinglishText = getHinglishText(data);
-
-                if (hinglishText) {
-                    document.getElementById("hinglishText").textContent = hinglishText;
-                    document
-                        .getElementById("hinglishTextContainer")
-                        .classList.remove("hidden");
+                if (!response.ok) {
+                    await readResponse(response);
                 }
 
-                if (!chunks.length) {
-                    if (hinglishText) {
-                        showVoiceStatus(
-                            "Text was generated, but the API did not return audio."
+                const contentType =
+                    response.headers.get("content-type") || "";
+
+                let audioUrl;
+
+                if (contentType.includes("application/json")) {
+                    const data = await response.json();
+
+                    audioUrl =
+                        data.audioUrl ||
+                        data.url ||
+                        data.data?.audioUrl;
+
+                    if (!audioUrl) {
+                        throw new Error(
+                            "Voice API did not return an audio URL."
                         );
-                        return;
                     }
-
-                    throw new Error(
-                        "The response did not contain audio. Check the voice API response format."
-                    );
+                } else {
+                    const blob = await response.blob();
+                    audioUrl = URL.createObjectURL(blob);
                 }
 
-                const declaredFormat =
-                    data.audioFormat || data.data?.audioFormat || "";
-
-                const { blob, ext } = buildAudioBlob(chunks, declaredFormat);
-
-                if (currentAudioUrl) {
-                    URL.revokeObjectURL(currentAudioUrl);
-                }
-
-                currentAudioUrl = URL.createObjectURL(blob);
-
-                voiceAudio.src = currentAudioUrl;
+                voiceAudio.src = audioUrl;
                 voiceAudio.classList.remove("hidden");
 
-                downloadAudioButton.classList.remove("hidden");
+                showVoiceStatus("Voice explanation generated.");
+                voiceAudio.play().catch(() => { });
 
-                downloadAudioButton.onclick = () => {
-                    const anchor = document.createElement("a");
-                    anchor.href = currentAudioUrl;
-                    anchor.download = `lesson-${lessonId}-voice.${ext}`;
-                    document.body.appendChild(anchor);
-                    anchor.click();
-                    anchor.remove();
-                };
-
-                showVoiceStatus(
-                    chunks.length > 1
-                        ? `Voice explanation generated successfully (${chunks.length} parts joined).`
-                        : "Voice explanation generated successfully."
-                );
-
-                // Browser autoplay rules may require pressing Play manually.
-                try {
-                    await voiceAudio.play();
-                } catch (playError) {
-                    console.info("Audio is ready. Press Play to listen.", playError);
-                }
             } catch (error) {
                 console.error("Voice generation error:", error);
 
@@ -1265,46 +988,246 @@
                     `Unable to generate voice.\n${error.message}`,
                     true
                 );
+
             } finally {
                 generateVoiceButton.disabled = false;
-                generateVoiceButton.textContent = "Generate Voice Explanation";
+                generateVoiceButton.textContent = "🔊 Generate Voice";
+            }
+        }
+
+        updateLessonButton.addEventListener("click", () => {
+            updateLessonCard.classList.toggle("hidden");
+
+            if (!updateLessonCard.classList.contains("hidden")) {
+                updateLessonPrompt.focus();
             }
         });
 
-        // --------------------------------------------------
-        // 6b. Download notes as PDF (uses the browser's Save as PDF)
-        // --------------------------------------------------
+        cancelLessonUpdate.addEventListener("click", () => {
+            updateLessonCard.classList.add("hidden");
+            updateLessonPrompt.value = "";
 
-        const originalTitle = document.title;
-
-        document
-            .getElementById("downloadPdfButton")
-            .addEventListener("click", () => {
-                const lessonTitle = document
-                    .getElementById("lessonTitle")
-                    .textContent.trim();
-
-                // The page title becomes the default PDF file name.
-                document.title = lessonTitle || "LearnSpace lesson notes";
-                window.print();
-            });
-
-        window.addEventListener("afterprint", () => {
-            document.title = originalTitle;
+            updateLessonStatus.classList.add("hidden");
+            updateLessonStatus.classList.remove("error");
         });
 
-        // --------------------------------------------------
-        // 7. Initialize page
-        // --------------------------------------------------
+        submitLessonUpdate.addEventListener("click", updateLesson);
+
+        async function downloadLessonPdf() {
+            const originalLabel = downloadPdfButton.textContent;
+            let pdfContent;
+
+            try {
+                if (!window.html2canvas || !window.jspdf?.jsPDF) {
+                    throw new Error("PDF libraries did not load. Check your internet connection and try again.");
+                }
+
+                downloadPdfButton.disabled = true;
+                downloadPdfButton.textContent = "Generating PDF...";
+
+                // Copy only the lesson notes; exclude the video and interactive voice player.
+                pdfContent = lessonContent.cloneNode(true);
+                pdfContent.querySelector("#videoCard")?.remove();
+                pdfContent.querySelector(".voice-card")?.remove();
+                pdfContent.querySelectorAll(".copy-button, button, iframe, audio").forEach(el => el.remove());
+
+                // Append the latest submitted quiz attempt for this course/lesson.
+                const attemptKey = `quizAttempt_${courseSlug}_${lessonId}`;
+                let savedAttempt = null;
+                try {
+                    savedAttempt = JSON.parse(localStorage.getItem(attemptKey) || "null");
+                } catch (error) {
+                    console.warn("Could not read saved quiz attempt:", error);
+                }
+
+                const quizCard = document.createElement("section");
+                quizCard.className = "card";
+                quizCard.style.cssText = "background:#fff;color:#1e293b;padding:20px;border:1px solid #cbd5e1;border-radius:8px;margin-top:18px;";
+                const quizHeading = document.createElement("h2");
+                quizHeading.textContent = "Lesson Quiz and Your Responses";
+                quizCard.appendChild(quizHeading);
+
+                if (!savedAttempt) {
+                    const noAttempt = document.createElement("p");
+                    noAttempt.textContent = "No submitted quiz attempt is saved for this lesson yet. Complete and submit the lesson quiz, then download the PDF again to include your responses.";
+                    quizCard.appendChild(noAttempt);
+                } else {
+                    const result = savedAttempt.result || {};
+                    const summary = document.createElement("p");
+                    summary.textContent = `Quiz: ${savedAttempt.quizTitle || "Lesson Quiz"} | Score: ${result.score ?? 0}/${result.totalQuestions ?? (savedAttempt.questions || []).length} | Percentage: ${result.percentage ?? 0}% | Status: ${result.passed ? "Passed" : "Review needed"} | Attempted: ${savedAttempt.attemptedAt ? new Date(savedAttempt.attemptedAt).toLocaleString() : "Unknown"}`;
+                    quizCard.appendChild(summary);
+
+                    (savedAttempt.questions || []).forEach((question, index) => {
+                        const block = document.createElement("div");
+                        block.style.cssText = "padding:12px 0;border-top:1px solid #e2e8f0;page-break-inside:avoid;";
+                        const title = document.createElement("p");
+                        title.style.fontWeight = "700";
+                        title.textContent = `${index + 1}. ${question.question || question.text || "Question"}`;
+                        block.appendChild(title);
+
+                        const answer = (savedAttempt.answers || []).find(a => String(a.questionId) === String(question.questionId ?? index + 1)) || (savedAttempt.answers || [])[index];
+                        const selectedIndex = Number(answer?.selectedIndex ?? -1);
+                        const options = Array.isArray(question.options) ? question.options : [];
+                        const selectedOption = options[selectedIndex];
+                        const selectedText = typeof selectedOption === "string" ? selectedOption : (selectedOption?.text ?? selectedOption?.label ?? selectedOption?.value ?? "No answer selected");
+                        const selected = document.createElement("p");
+                        selected.textContent = `Your answer: ${selectedIndex >= 0 ? selectedText : "No answer selected"}`;
+                        block.appendChild(selected);
+
+                        const feedbackItems = result.breakdown || [];
+                        const feedback = feedbackItems.find(item => String(item.questionId ?? "") === String(question.questionId ?? index + 1) || String(item.question ?? item.prompt ?? "") === String(question.question ?? question.text ?? "")) || feedbackItems[index];
+                        if (feedback) {
+                            const status = document.createElement("p");
+                            status.textContent = `Result: ${feedback.isCorrect ? "Correct" : "Incorrect"}`;
+                            status.style.color = feedback.isCorrect ? "#047857" : "#b91c1c";
+                            status.style.fontWeight = "700";
+                            block.appendChild(status);
+                            if (feedback.explanation) {
+                                const explanation = document.createElement("p");
+                                explanation.textContent = `Explanation: ${feedback.explanation}`;
+                                block.appendChild(explanation);
+                            }
+                        }
+                        quizCard.appendChild(block);
+                    });
+                }
+                pdfContent.appendChild(quizCard);
+
+                // Put the clone off-screen so html2canvas can render it without changing the visible page.
+                Object.assign(pdfContent.style, {
+                    display: "block",
+                    position: "fixed",
+                    left: "-10000px",
+                    top: "0",
+                    width: "760px",
+                    maxWidth: "760px",
+                    margin: "0",
+                    padding: "20px",
+                    background: "#ffffff",
+                    color: "#1e293b",
+                    zIndex: "-1"
+                });
+
+                pdfContent.querySelectorAll(".card").forEach(card => {
+                    Object.assign(card.style, {
+                        boxShadow: "none",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: "8px",
+                        marginBottom: "14px",
+                        breakInside: "avoid"
+                    });
+                });
+
+                pdfContent.querySelectorAll("pre").forEach(pre => {
+                    Object.assign(pre.style, {
+                        whiteSpace: "pre-wrap",
+                        overflow: "visible",
+                        overflowWrap: "anywhere",
+                        wordBreak: "break-word",
+                        background: "#f1f5f9",
+                        color: "#0f172a"
+                    });
+                });
+
+                pdfContent.querySelectorAll("a").forEach(link => {
+                    link.style.color = "#2563eb";
+                    link.style.wordBreak = "break-word";
+                });
+
+                document.body.appendChild(pdfContent);
+
+                const canvas = await html2canvas(pdfContent, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: "#ffffff",
+                    logging: false,
+                    windowWidth: 800
+                });
+
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const margin = 10;
+                const usableWidth = pageWidth - margin * 2;
+                const usableHeight = pageHeight - margin * 2;
+
+                // Slice the rendered lesson into A4-sized pages.
+                const pixelsPerMm = canvas.width / usableWidth;
+                const pageSliceHeight = Math.floor(usableHeight * pixelsPerMm);
+                let sourceY = 0;
+                let pageNumber = 0;
+
+                while (sourceY < canvas.height) {
+                    const sliceHeight = Math.min(pageSliceHeight, canvas.height - sourceY);
+                    const pageCanvas = document.createElement("canvas");
+                    pageCanvas.width = canvas.width;
+                    pageCanvas.height = sliceHeight;
+                    const context = pageCanvas.getContext("2d");
+                    context.fillStyle = "#ffffff";
+                    context.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+                    context.drawImage(
+                        canvas,
+                        0, sourceY, canvas.width, sliceHeight,
+                        0, 0, canvas.width, sliceHeight
+                    );
+
+                    if (pageNumber > 0) pdf.addPage();
+                    const imageHeight = sliceHeight / pixelsPerMm;
+                    pdf.addImage(pageCanvas.toDataURL("image/jpeg", 0.95), "JPEG", margin, margin, usableWidth, imageHeight);
+
+                    sourceY += sliceHeight;
+                    pageNumber++;
+                }
+
+                const safeTitle = (lessonTitle.textContent || "lesson-notes")
+                    .replace(/[\\/:*?"<>|]+/g, "-")
+                    .trim() || "lesson-notes";
+                pdf.save(`${safeTitle}.pdf`);
+            } catch (error) {
+                console.error("PDF download error:", error);
+                showPageStatus(`Unable to generate PDF.\n${error.message}`, true);
+            } finally {
+                pdfContent?.remove();
+                downloadPdfButton.disabled = false;
+                downloadPdfButton.textContent = originalLabel;
+            }
+        }
+
+        downloadPdfButton.addEventListener("click", downloadLessonPdf);
+
+        // Open the quiz page for this exact course lesson. The quiz page reuses
+        // the saved JWT token and calls the existing quiz API endpoints.
+        document.getElementById("openQuizButton").addEventListener("click", () => {
+            const quizUrl = new URL("quize.html", window.location.href);
+            quizUrl.searchParams.set("courseSlug", courseSlug);
+            quizUrl.searchParams.set("lessonId", lessonId);
+            window.location.href = quizUrl.toString();
+        });
+
+        copyCodeButton.addEventListener("click", async () => {
+            try {
+                await navigator.clipboard.writeText(lessonCode.textContent);
+
+                copyCodeButton.textContent = "Copied!";
+
+                setTimeout(() => {
+                    copyCodeButton.textContent = "Copy";
+                }, 1500);
+
+            } catch (error) {
+                console.error("Copy failed:", error);
+            }
+        });
+
+        generateVoiceButton.addEventListener("click", generateVoice);
+
+        stopVoiceButton.addEventListener("click", () => {
+            voiceAudio.pause();
+            voiceAudio.currentTime = 0;
+        });
 
         loadLesson();
-
-        // Clean up the generated audio URL when leaving the page.
-        window.addEventListener("beforeunload", () => {
-            if (currentAudioUrl) {
-                URL.revokeObjectURL(currentAudioUrl);
-            }
-        });
     </script>
 </body>
 

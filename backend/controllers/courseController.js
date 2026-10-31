@@ -1,3 +1,4 @@
+
 import outlineAgent from '../agents/outlineAgent.js';
 import contentAgent from '../agents/contentAgent.js';
 import lessonUpdateAgent from '../agents/lessonUpdate.js';
@@ -7,6 +8,20 @@ import User from '../models/User.js';
 import Quiz from '../models/Quize.js';
 
 import youtubeUtil from '../utils/youtube.js';
+
+/*
+|--------------------------------------------------------------------------
+| Helpers
+|--------------------------------------------------------------------------
+*/
+
+const mongooseIsValidObjectId = (id) => {
+    return /^[a-f\d]{24}$/i.test(String(id || ''));
+};
+
+const getCurrentUserId = (req) => {
+    return req.user?._id || req.user?.id || req.user?.sub;
+};
 
 /*
 |--------------------------------------------------------------------------
@@ -35,9 +50,11 @@ const generateCourse = async (req, res) => {
             });
         }
 
+        const creatorId = getCurrentUserId(req);
+
         const course = await Course.addCourse({
             ...outline,
-            creator: req.user._id,
+            creator: creatorId,
         });
 
         return res.status(201).json({
@@ -65,10 +82,10 @@ const generateLesson = async (req, res) => {
     try {
         const { courseSlug, courseTitle, lesson } = req.body;
 
-        if (!courseSlug || !lesson) {
+        if (!courseSlug || !lesson || !lesson.lessonId) {
             return res.status(400).json({
                 success: false,
-                message: 'courseSlug and lesson are required',
+                message: 'courseSlug and lesson.lessonId are required',
             });
         }
 
@@ -85,7 +102,7 @@ const generateLesson = async (req, res) => {
             existingCourse = await Course.create({
                 courseSlug,
                 title: courseTitle,
-                creator: req.user._id,
+                creator: getCurrentUserId(req),
                 lessons: [lesson],
             });
         }
@@ -105,8 +122,6 @@ const generateLesson = async (req, res) => {
         const existingVideoIds = existingCourse.lessons
             .map((item) => item.video?.videoId)
             .filter(Boolean);
-
-        console.log('[Generate Lesson] Generating content and finding video');
 
         const [content, video] = await Promise.all([
             contentAgent.generateLessonContent(
@@ -165,6 +180,7 @@ const generateLesson = async (req, res) => {
 const getCourseBySlug = async (req, res) => {
     try {
         const { courseSlug } = req.params;
+
         const course = await Course.findBySlug(courseSlug);
 
         if (!course) {
@@ -230,8 +246,6 @@ const getLessonContent = async (req, res) => {
             .map((item) => item.video?.videoId)
             .filter(Boolean);
 
-        console.log('[Get Lesson] Generating lesson content');
-
         const [content, video] = await Promise.all([
             contentAgent.generateLessonContent(
                 course.title,
@@ -284,24 +298,18 @@ const getLessonContent = async (req, res) => {
 |--------------------------------------------------------------------------
 | Update One Lesson Using AI
 |--------------------------------------------------------------------------
-| PUT /api/courses/:courseSlug/:lessonId/update
-| Body: { "prompt": "Replace the video with a better tutorial" }
-|--------------------------------------------------------------------------
 */
 
 const updateLesson = async (req, res) => {
     const requestId =
-        `lesson-update-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-
-    console.log(`\n[${requestId}] ===== UPDATE STARTED =====`);
-    console.log(`[${requestId}] Params:`, req.params);
-    console.log(`[${requestId}] Prompt:`, req.body?.prompt);
+        `lesson-update-${Date.now()}-${Math.random()
+            .toString(36)
+            .slice(2, 7)}`;
 
     try {
         const { courseSlug, lessonId } = req.params;
         const prompt = req.body?.prompt;
 
-        // 1. Validate request
         if (!courseSlug || !lessonId) {
             return res.status(400).json({
                 success: false,
@@ -318,14 +326,9 @@ const updateLesson = async (req, res) => {
             });
         }
 
-        // 2. Find course
-        console.log(`[${requestId}] Step 1: Finding course`);
-
         const course = await Course.findOne({ courseSlug });
 
         if (!course) {
-            console.error(`[${requestId}] Course not found`);
-
             return res.status(404).json({
                 success: false,
                 message: 'Course not found',
@@ -333,14 +336,11 @@ const updateLesson = async (req, res) => {
             });
         }
 
-        // 3. Find requested lesson
         const lesson = course.lessons.find(
             (item) => item.lessonId === lessonId
         );
 
         if (!lesson) {
-            console.error(`[${requestId}] Lesson not found:`, lessonId);
-
             return res.status(404).json({
                 success: false,
                 message: 'Lesson not found in this course',
@@ -348,67 +348,35 @@ const updateLesson = async (req, res) => {
             });
         }
 
-        console.log(`[${requestId}] Step 2: Lesson found`);
-        console.log(`[${requestId}] Lesson title:`, lesson.title);
-        console.log(
-            `[${requestId}] Existing video ID:`,
-            lesson.video?.videoId || 'None'
-        );
-
-        // Video IDs already used by OTHER lessons in this course,
-        // so a replacement video is not a duplicate of another lesson's video.
         const otherVideoIds = course.lessons
             .filter((item) => item.lessonId !== lessonId)
             .map((item) => item.video?.videoId)
             .filter(Boolean);
 
-        // 4. Ask the AI agent to update the lesson
-        console.log(`[${requestId}] Step 3: Calling lesson update agent`);
+        const result =
+            await lessonUpdateAgent.updateLessonContent(
+                course.title,
+                lesson.toObject(),
+                prompt.trim(),
+                otherVideoIds
+            );
 
-        const result = await lessonUpdateAgent.updateLessonContent(
-            course.title,
-            lesson.toObject(),
-            prompt.trim(),
-            otherVideoIds
-        );
+        const updatedLesson =
+            result?.updatedLesson || result?.lesson;
 
-        console.log(`[${requestId}] Step 4: AI agent returned`);
-        console.log(
-            `[${requestId}] Agent result keys:`,
-            result && typeof result === 'object'
-                ? Object.keys(result)
-                : result
-        );
-
-        /*
-         * Support either result.lesson or result.updatedLesson.
-         * The agent must return one of these shapes.
-         */
-        const updatedLesson = result?.updatedLesson || result?.lesson;
         const updateAnalysis = result?.updateAnalysis || {};
 
         if (!updatedLesson || typeof updatedLesson !== 'object') {
-            console.error(
-                `[${requestId}] Invalid agent result:`,
-                JSON.stringify(result, null, 2)
-            );
-
             return res.status(502).json({
                 success: false,
-                message:
-                    'AI agent did not return a valid updated lesson. Check the lessonUpdate.js return value.',
+                message: 'AI agent did not return a valid updated lesson',
                 requestId,
             });
         }
 
-        // 5. Preserve lesson identity and order
         updatedLesson.lessonId = lesson.lessonId;
         updatedLesson.lessonNumber = lesson.lessonNumber;
 
-        /*
-         * Preserve the existing video unless the agent has
-         * deliberately supplied a replacement video.
-         */
         if (!updatedLesson.video && lesson.video) {
             updatedLesson.video = lesson.video;
         }
@@ -420,18 +388,8 @@ const updateLesson = async (req, res) => {
             updateAnalysis.videoChanged === true ||
             (
                 Boolean(updatedLesson.video?.videoId) &&
-                updatedLesson.video?.videoId !== lesson.video?.videoId
+                updatedLesson.video.videoId !== lesson.video?.videoId
             );
-
-        console.log(`[${requestId}] Video change requested:`, videoChangeRequested);
-        console.log(`[${requestId}] Video changed:`, videoChanged);
-        console.log(
-            `[${requestId}] New video ID:`,
-            updatedLesson.video?.videoId || 'None'
-        );
-
-        // 6. Save the updated lesson
-        console.log(`[${requestId}] Step 5: Saving lesson to MongoDB`);
 
         const updatedCourse = await Course.updateLesson(
             courseSlug,
@@ -440,30 +398,18 @@ const updateLesson = async (req, res) => {
         );
 
         if (!updatedCourse) {
-            console.error(
-                `[${requestId}] Course.updateLesson returned no course`
-            );
-
             return res.status(500).json({
                 success: false,
-                message:
-                    'MongoDB did not return the updated course. Check Course.updateLesson in models/Course.js.',
+                message: 'Failed to save the updated lesson',
                 requestId,
             });
         }
 
-        console.log(`[${requestId}] Step 6: MongoDB save completed`);
-
-        // 7. Retrieve the actual saved lesson
         const savedLesson = updatedCourse.lessons.find(
             (item) => item.lessonId === lessonId
         );
 
         if (!savedLesson) {
-            console.error(
-                `[${requestId}] Saved course does not contain the lesson`
-            );
-
             return res.status(500).json({
                 success: false,
                 message: 'Lesson was not found after saving',
@@ -471,35 +417,19 @@ const updateLesson = async (req, res) => {
             });
         }
 
-        console.log(
-            `[${requestId}] Saved video ID:`,
-            savedLesson.video?.videoId || 'None'
-        );
-
-        // 8. Invalidate the quiz only if lesson content changed
         const contentChanged =
             updateAnalysis.contentChanged === true;
 
         let quizInvalidated = false;
 
         if (contentChanged) {
-            console.log(`[${requestId}] Step 7: Invalidating old quiz`);
-
             const deletedQuiz = await Quiz.findOneAndDelete({
                 courseSlug,
                 lessonId,
             });
 
             quizInvalidated = Boolean(deletedQuiz);
-
-            console.log(
-                `[${requestId}] Quiz invalidated:`,
-                quizInvalidated
-            );
         }
-
-        // 9. Send response
-        console.log(`[${requestId}] ===== UPDATE SUCCEEDED =====\n`);
 
         return res.status(200).json({
             success: true,
@@ -516,11 +446,18 @@ const updateLesson = async (req, res) => {
             lesson: savedLesson,
         });
     } catch (error) {
-        console.error(`\n[${requestId}] ===== UPDATE FAILED =====`);
-        console.error(`[${requestId}] Error name:`, error.name);
-        console.error(`[${requestId}] Error message:`, error.message);
-        console.error(`[${requestId}] Stack trace:\n`, error.stack);
-        console.error(`[${requestId}] ===== END ERROR =====\n`);
+        console.error(`[${requestId}] Update lesson error:`, error.stack || error);
+
+        const statusCode =
+            error.status || error.statusCode || error.response?.status;
+
+        if (statusCode === 429) {
+            return res.status(429).json({
+                success: false,
+                message: 'AI rate limit reached. Please wait before trying again.',
+                requestId,
+            });
+        }
 
         return res.status(500).json({
             success: false,
@@ -538,7 +475,9 @@ const updateLesson = async (req, res) => {
 
 const getMyCourses = async (req, res) => {
     try {
-        const courses = await Course.getMyCourses(req.user._id);
+        const userId = getCurrentUserId(req);
+
+        const courses = await Course.getMyCourses(userId);
 
         return res.status(200).json({
             success: true,
@@ -556,6 +495,40 @@ const getMyCourses = async (req, res) => {
 
 /*
 |--------------------------------------------------------------------------
+| Get Share Courses
+|--------------------------------------------------------------------------
+*/
+
+const getSharedCourses = async (req, res) => {
+    try {
+        const userId = getCurrentUserId(req);
+
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: 'User not authenticated',
+            });
+        }
+
+        const sharedCourses = await Course.getSharedCourses(userId);
+
+        return res.status(200).json({
+            success: true,
+            sharedCourses,
+        });
+
+    } catch (error) {
+        console.error('[Get Shared Courses] Error:', error.stack || error);
+
+        return res.status(500).json({
+            success: false,
+            message: error.message || 'Failed to get shared courses',
+        });
+    }
+};
+
+/*
+|--------------------------------------------------------------------------
 | Share Course
 |--------------------------------------------------------------------------
 */
@@ -563,11 +536,26 @@ const getMyCourses = async (req, res) => {
 const shareCourse = async (req, res) => {
     try {
         const { courseSlug, userId } = req.body;
+        const currentUserId = getCurrentUserId(req);
 
         if (!courseSlug || !userId) {
             return res.status(400).json({
                 success: false,
                 message: 'courseSlug and userId are required',
+            });
+        }
+
+        if (!mongooseIsValidObjectId(userId)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Invalid user ID',
+            });
+        }
+
+        if (!mongooseIsValidObjectId(currentUserId)) {
+            return res.status(401).json({
+                success: false,
+                message: 'Authenticated user ID is invalid',
             });
         }
 
@@ -589,13 +577,28 @@ const shareCourse = async (req, res) => {
             });
         }
 
-        if (
-            course.creator.toString() !==
-            req.user._id.toString()
-        ) {
+        if (String(course.creator) !== String(currentUserId)) {
             return res.status(403).json({
                 success: false,
                 message: 'Only the course owner can share this course',
+            });
+        }
+
+        if (String(targetUser._id) === String(currentUserId)) {
+            return res.status(400).json({
+                success: false,
+                message: 'You cannot share a course with yourself',
+            });
+        }
+
+        const alreadyShared = (course.sharedWith || []).some(
+            (id) => String(id) === String(targetUser._id)
+        );
+
+        if (alreadyShared) {
+            return res.status(200).json({
+                success: true,
+                message: 'Course is already shared with this user',
             });
         }
 
@@ -612,9 +615,77 @@ const shareCourse = async (req, res) => {
     } catch (error) {
         console.error('[Share Course] Error:', error.stack || error);
 
-        return res.status(500).json({
+        return res.status(error.statusCode || 500).json({
             success: false,
             message: error.message || 'Failed to share course',
+        });
+    }
+};
+
+/*
+|--------------------------------------------------------------------------
+| Search Registered Users
+|--------------------------------------------------------------------------
+| GET /api/courses/share/search-users?q=baqer
+|--------------------------------------------------------------------------
+*/
+
+const searchUsers = async (req, res) => {
+    try {
+        const query = String(req.query.q || '').trim();
+
+        if (query.length < 2) {
+            return res.status(200).json({
+                success: true,
+                users: [],
+            });
+        }
+
+        // This endpoint searches User directly; it does not look up a course.
+        const escapedQuery = query.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            '\\$&'
+        );
+
+        const currentUserId = getCurrentUserId(req);
+
+        const filter = {
+            $or: [
+                {
+                    name: {
+                        $regex: escapedQuery,
+                        $options: 'i',
+                    },
+                },
+                {
+                    email: {
+                        $regex: escapedQuery,
+                        $options: 'i',
+                    },
+                },
+            ],
+        };
+
+        // Exclude the current user when their ID is a MongoDB ObjectId.
+        if (mongooseIsValidObjectId(currentUserId)) {
+            filter._id = { $ne: currentUserId };
+        }
+
+        const users = await User.find(filter)
+            .select('_id name email')
+            .limit(10)
+            .lean();
+
+        return res.status(200).json({
+            success: true,
+            users,
+        });
+    } catch (error) {
+        console.error('[Search Users] Error:', error.stack || error);
+
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to search registered users',
         });
     }
 };
@@ -628,10 +699,11 @@ const shareCourse = async (req, res) => {
 const deleteCourse = async (req, res) => {
     try {
         const { courseSlug } = req.params;
+        const currentUserId = getCurrentUserId(req);
 
         const result = await Course.deleteCourseByOwner(
             courseSlug,
-            req.user._id
+            currentUserId
         );
 
         return res.status(200).json({
@@ -661,6 +733,8 @@ export default {
     getLessonContent,
     updateLesson,
     getMyCourses,
+    getSharedCourses,
     shareCourse,
+    searchUsers,
     deleteCourse,
 };

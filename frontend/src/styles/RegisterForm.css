@@ -1,0 +1,83 @@
+.register {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.register__title {
+    margin: 0 0 14px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.9rem, 3vw, 2.5rem);
+    line-height: 1.1;
+    text-align: center;
+}
+
+.register__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 12px;
+    /* extra space between the fields and the button */
+}
+
+.register__submit {
+    height: 52px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    background: linear-gradient(90deg, var(--violet-deep), var(--violet) 55%, var(--magenta));
+    border: 0;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 0 24px rgba(168, 85, 247, 0.55);
+    transition: transform 0.15s, box-shadow 0.2s;
+}
+
+.register__submit:hover {
+    box-shadow: 0 0 34px rgba(217, 70, 239, 0.75);
+}
+
+.register__submit:active {
+    transform: scale(0.98);
+}
+
+.register__terms {
+    margin: 6px 0 0;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    text-align: center;
+    color: var(--muted);
+}
+
+.register__terms a {
+    color: var(--violet);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.register__terms a:hover {
+    text-decoration: underline;
+}
+
+/* Divider line above the "Have an account?" row */
+.register__switch {
+    margin: 14px 0 0;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.register__link {
+    padding: 0;
+    color: var(--violet);
+    font-weight: 700;
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.register__link:hover {
+    text-decoration: underline;
+}

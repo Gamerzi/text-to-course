@@ -1,0 +1,681 @@
+/* ========================================
+   COURSE PAGE - THEME VARIABLES
+======================================== */
+
+:root {
+    --cj-bg: #090611;
+    --cj-card-bg: #1d1730;
+    --cj-border: rgba(190, 165, 255, 0.16);
+    --cj-border-hover: rgba(177, 130, 255, 0.75);
+    --cj-text: #f5f1ff;
+    --cj-muted: #b8afce;
+    --cj-accent: #b895ff;
+    --cj-accent-light: #d3bdff;
+    --cj-radius: 24px;
+    --cj-transition: 220ms ease;
+}
+
+/* ========================================
+   ROOT
+======================================== */
+
+.cj-root {
+    width: 100%;
+    min-width: 0;
+    padding: 24px 30px 40px;
+    color: var(--cj-text);
+    background: transparent;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.cj-root *,
+.cj-root *::before,
+.cj-root *::after {
+    box-sizing: border-box;
+}
+
+/* ========================================
+   SECTION HEADINGS
+======================================== */
+
+.cj-section {
+    width: 100%;
+    margin-bottom: 42px;
+}
+
+.cj-section-head {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 26px;
+}
+
+.cj-section-head h2,
+.cj-skeleton-title {
+    margin: 0;
+    color: #ffffff;
+    font-size: clamp(23px, 2vw, 30px);
+    font-weight: 750;
+    letter-spacing: -0.8px;
+    line-height: 1.3;
+}
+
+.cj-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    border: 1px solid rgba(185, 149, 255, 0.3);
+    border-radius: 50px;
+    background: rgba(154, 104, 255, 0.13);
+    color: var(--cj-accent-light);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* ========================================
+   COURSE GRID
+======================================== */
+
+.cj-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 26px 30px;
+    width: 100%;
+    align-items: stretch;
+}
+
+/* ========================================
+   COURSE CARD
+======================================== */
+
+.cj-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-width: 0;
+    min-height: 100%;
+    padding: 0;
+    overflow: hidden;
+
+    border: 1px solid var(--cj-border);
+    border-radius: var(--cj-radius);
+    background: var(--cj-card-bg);
+    color: var(--cj-text);
+
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+
+    transition:
+        transform var(--cj-transition),
+        border-color var(--cj-transition),
+        box-shadow var(--cj-transition);
+}
+
+.cj-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--cj-border-hover);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+}
+
+.cj-card:focus-visible {
+    outline: 2px solid var(--cj-accent);
+    outline-offset: 4px;
+}
+
+.cj-card:active {
+    transform: translateY(-1px);
+}
+
+/* ========================================
+   TOPIC COVER
+======================================== */
+
+.cj-thumb {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 315px;
+    min-height: 230px;
+    flex-shrink: 0;
+    overflow: hidden;
+
+    background:
+        radial-gradient(circle at 12% 15%,
+            hsla(var(--h, 260), 85%, 55%, 0.38),
+            transparent 55%),
+        radial-gradient(circle at 88% 90%,
+            hsla(var(--h2, 305), 85%, 45%, 0.35),
+            transparent 48%),
+        linear-gradient(135deg,
+            hsl(var(--h, 260), 40%, 24%),
+            #211832 65%,
+            hsl(var(--h2, 305), 45%, 19%));
+}
+
+/* Soft decorative lighting */
+
+.cj-thumb::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+
+    background:
+        linear-gradient(145deg,
+            rgba(255, 255, 255, 0.06),
+            transparent 40%,
+            rgba(0, 0, 0, 0.12));
+}
+
+/* ========================================
+   CENTERED TOPIC LOGO
+======================================== */
+
+.cj-thumb-glyph {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 2;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 116px;
+    height: 116px;
+    padding: 12px;
+
+    transform: translate(-50%, -50%);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 30px;
+
+    background: rgba(20, 15, 38, 0.55);
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    color: #ffffff;
+    font-size: 48px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    line-height: 1;
+
+    text-align: center;
+    text-shadow: 0 2px 12px rgba(255, 255, 255, 0.1);
+    overflow-wrap: anywhere;
+
+    transition:
+        transform var(--cj-transition),
+        background var(--cj-transition);
+}
+
+.cj-card:hover .cj-thumb-glyph {
+    transform: translate(-50%, -50%) scale(1.06);
+    background: rgba(28, 20, 50, 0.68);
+}
+
+.cj-thumb-glyph.is-long {
+    font-size: 34px;
+    letter-spacing: -0.5px;
+}
+
+/* ========================================
+   DECORATIVE CIRCLES
+======================================== */
+
+.cj-thumb-ring {
+    position: absolute;
+    z-index: 1;
+    display: block;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.cj-thumb-ring--a {
+    width: 170px;
+    height: 170px;
+    top: -100px;
+    left: -50px;
+}
+
+.cj-thumb-ring--b {
+    width: 260px;
+    height: 260px;
+    right: -80px;
+    bottom: -155px;
+}
+
+/* ========================================
+   COVER CAPTION
+======================================== */
+
+.cj-thumb-caption {
+    position: absolute;
+    right: 20px;
+    bottom: 16px;
+    z-index: 2;
+
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 12px;
+    font-weight: 750;
+    letter-spacing: 0.7px;
+    line-height: 1.4;
+    text-align: right;
+    pointer-events: none;
+}
+
+/* ========================================
+   FALLBACK TOPIC COVER
+======================================== */
+
+.cj-thumb--fallback {
+    background:
+        radial-gradient(circle at 10% 10%,
+            hsla(var(--h, 260), 85%, 58%, 0.35),
+            transparent 48%),
+        radial-gradient(circle at 90% 90%,
+            hsla(var(--h2, 305), 85%, 50%, 0.3),
+            transparent 50%),
+        linear-gradient(135deg,
+            hsl(var(--h, 260), 36%, 22%),
+            #211832 70%,
+            hsl(var(--h2, 305), 38%, 17%));
+}
+
+.cj-thumb--fallback .cj-thumb-glyph {
+    color: #ffffff;
+}
+
+/* ========================================
+   SHARED COURSE BADGE
+======================================== */
+
+.cj-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 3;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    max-width: calc(100% - 32px);
+    padding: 8px 12px;
+
+    border: 1px solid rgba(215, 194, 255, 0.3);
+    border-radius: 30px;
+    background: rgba(15, 10, 30, 0.75);
+
+    color: #e7d9ff;
+    font-size: 12px;
+    font-weight: 650;
+    line-height: 1.3;
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+/* ========================================
+   COURSE CONTENT
+======================================== */
+
+.cj-card-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: stretch;
+
+    min-width: 0;
+    padding: 24px 26px 26px;
+    background: var(--cj-card-bg);
+}
+
+.cj-card-title {
+    display: -webkit-box;
+    min-height: 0;
+    margin: 0 0 20px;
+
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+
+    color: #f7f3ff;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+}
+
+/* ========================================
+   COURSE METADATA
+======================================== */
+
+.cj-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 18px;
+
+    margin: 0 0 24px;
+    padding: 0;
+    list-style: none;
+}
+
+.cj-meta li {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+
+    min-width: 0;
+    color: var(--cj-muted);
+    font-size: 14px;
+    font-weight: 450;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.cj-icon {
+    display: block;
+    width: 19px;
+    height: 19px;
+    flex-shrink: 0;
+    color: var(--cj-accent);
+}
+
+/* ========================================
+   OPEN COURSE ACTION
+======================================== */
+
+.cj-card-action {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+
+    margin-top: auto;
+    padding-top: 4px;
+
+    color: #f6f0ff;
+    font-size: 17px;
+    font-weight: 550;
+    line-height: 1.5;
+
+    transition: color var(--cj-transition);
+}
+
+.cj-card-action span {
+    display: inline-block;
+    transition: transform var(--cj-transition);
+}
+
+.cj-card:hover .cj-card-action {
+    color: var(--cj-accent-light);
+}
+
+.cj-card:hover .cj-card-action span {
+    transform: translateX(5px);
+}
+
+/* ========================================
+   EMPTY STATE
+======================================== */
+
+.cj-empty {
+    margin: 0;
+    padding: 28px 24px;
+
+    border: 1px dashed rgba(190, 165, 255, 0.25);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.02);
+
+    color: var(--cj-muted);
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+/* ========================================
+   ERROR STATE
+======================================== */
+
+.cj-error {
+    width: 100%;
+    padding: 24px;
+
+    border: 1px solid rgba(255, 105, 125, 0.28);
+    border-radius: 18px;
+    background: rgba(255, 70, 100, 0.07);
+
+    color: #ffe1e6;
+}
+
+.cj-error p {
+    margin: 0 0 16px;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.cj-error button {
+    padding: 10px 18px;
+    border: 1px solid rgba(205, 175, 255, 0.35);
+    border-radius: 10px;
+    background: rgba(170, 125, 255, 0.15);
+
+    color: #ffffff;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 650;
+    cursor: pointer;
+
+    transition: background var(--cj-transition);
+}
+
+.cj-error button:hover {
+    background: rgba(170, 125, 255, 0.28);
+}
+
+/* ========================================
+   LOADING SKELETON
+======================================== */
+
+.cj-skeleton-title {
+    margin-bottom: 26px;
+}
+
+.cj-skeleton {
+    cursor: default;
+    pointer-events: none;
+}
+
+.cj-skeleton .cj-thumb {
+    background: linear-gradient(110deg,
+            #211a34 25%,
+            #302541 45%,
+            #211a34 65%);
+    background-size: 200% 100%;
+    animation: cj-shimmer 1.5s linear infinite;
+}
+
+.cj-skeleton .cj-card-body {
+    gap: 16px;
+}
+
+.cj-line {
+    width: 85%;
+    height: 15px;
+    border-radius: 8px;
+    background: rgba(220, 205, 255, 0.1);
+}
+
+.cj-line--short {
+    width: 55%;
+}
+
+@keyframes cj-shimmer {
+    to {
+        background-position-x: -200%;
+    }
+}
+
+/* ========================================
+   RESPONSIVE: LARGE SCREENS
+======================================== */
+
+@media (min-width: 1600px) {
+    .cj-grid {
+        gap: 30px;
+    }
+
+    .cj-thumb {
+        height: 340px;
+    }
+
+    .cj-card-body {
+        padding: 26px 28px 28px;
+    }
+
+    .cj-card-title {
+        font-size: 20px;
+    }
+}
+
+/* ========================================
+   RESPONSIVE: TABLETS / SMALL DESKTOP
+======================================== */
+
+@media (max-width: 1200px) {
+    .cj-root {
+        padding: 22px;
+    }
+
+    .cj-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+    }
+
+    .cj-thumb {
+        height: 280px;
+    }
+
+    .cj-card-body {
+        padding: 22px;
+    }
+}
+
+/* ========================================
+   RESPONSIVE: MOBILE
+======================================== */
+
+@media (max-width: 700px) {
+    .cj-root {
+        padding: 18px 14px 30px;
+    }
+
+    .cj-section {
+        margin-bottom: 32px;
+    }
+
+    .cj-section-head {
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+    .cj-section-head h2,
+    .cj-skeleton-title {
+        font-size: 23px;
+    }
+
+    .cj-count {
+        min-width: 30px;
+        height: 30px;
+        font-size: 12px;
+    }
+
+    .cj-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+    }
+
+    .cj-card {
+        border-radius: 20px;
+    }
+
+    .cj-thumb {
+        height: 245px;
+        min-height: 210px;
+    }
+
+    .cj-thumb-glyph {
+        width: 96px;
+        height: 96px;
+        border-radius: 25px;
+        font-size: 42px;
+    }
+
+    .cj-thumb-glyph.is-long {
+        font-size: 30px;
+    }
+
+    .cj-thumb-caption {
+        right: 14px;
+        bottom: 12px;
+        font-size: 10px;
+    }
+
+    .cj-card-body {
+        padding: 20px;
+    }
+
+    .cj-card-title {
+        margin-bottom: 18px;
+        font-size: 18px;
+        line-height: 1.5;
+    }
+
+    .cj-meta {
+        gap: 10px 15px;
+        margin-bottom: 20px;
+    }
+
+    .cj-meta li {
+        font-size: 13px;
+    }
+
+    .cj-card-action {
+        font-size: 16px;
+    }
+}
+
+/* ========================================
+   REDUCED MOTION ACCESSIBILITY
+======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+    .cj-card,
+    .cj-thumb-glyph,
+    .cj-card-action,
+    .cj-card-action span {
+        transition: none;
+    }
+
+    .cj-skeleton .cj-thumb {
+        animation: none;
+    }
+}
