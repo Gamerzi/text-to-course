@@ -1,3 +1,4 @@
+import { API_URL } from "../config.js";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import hljs from "highlight.js";
@@ -12,7 +13,7 @@ import ErrorPage from "../components/ErrorPage.jsx";
 const API_BASE = (
     import.meta.env.VITE_API_BASE ||
     localStorage.getItem("apiBase") ||
-    "http://localhost:5000/api"
+    `${API_URL}/api`
 ).replace(/\/+$/, "");
 
 const isJwt = (v) =>

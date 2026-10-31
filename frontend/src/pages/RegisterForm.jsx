@@ -1,3 +1,4 @@
+import { API_URL } from "../config.js";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TextField from "../components/TextField.jsx";
@@ -49,7 +50,7 @@ export default function RegisterForm({ onSwitch }) {
 
         try {
             const response = await fetch(
-                "http://localhost:5000/api/users/register",
+                `${API_URL}/api/users/register`,
                 {
                     method: "POST",
                     headers: {

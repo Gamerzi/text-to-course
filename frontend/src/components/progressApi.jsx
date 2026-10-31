@@ -1,3 +1,4 @@
+import { API_URL } from "../config.js";
 // src/components/progressApi.js
 const headers = () => {
     const token = localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -17,12 +18,12 @@ const handle = async (res) => {
 export const setLessonCompleted = async (courseSlug, lessonId, completed) => {
     const body = JSON.stringify({ completed });
     let res = await fetch(
-        `http://localhost:5000/api/course-progress/${encodeURIComponent(courseSlug)}/lessons/${encodeURIComponent(lessonId)}`,
+        `${API_URL}/api/course-progress/${encodeURIComponent(courseSlug)}/lessons/${encodeURIComponent(lessonId)}`,
         { method: "PATCH", headers: headers(), body }
     );
     if (!res.ok && res.status === 404) {
         res = await fetch(
-            `http://localhost:5000/api/progress/${encodeURIComponent(courseSlug)}/lessons/${encodeURIComponent(lessonId)}`,
+            `${API_URL}/api/progress/${encodeURIComponent(courseSlug)}/lessons/${encodeURIComponent(lessonId)}`,
             { method: "PATCH", headers: headers(), body }
         );
     }
@@ -32,12 +33,12 @@ export const setLessonCompleted = async (courseSlug, lessonId, completed) => {
 // Progress for one course (by slug)
 export const fetchCourseProgress = async (courseSlug, signal) => {
     let res = await fetch(
-        `http://localhost:5000/api/course-progress/${encodeURIComponent(courseSlug)}`,
+        `${API_URL}/api/course-progress/${encodeURIComponent(courseSlug)}`,
         { headers: headers(), signal }
     );
     if (!res.ok && res.status === 404) {
         res = await fetch(
-            `http://localhost:5000/api/progress/${encodeURIComponent(courseSlug)}`,
+            `${API_URL}/api/progress/${encodeURIComponent(courseSlug)}`,
             { headers: headers(), signal }
         );
     }
@@ -46,12 +47,12 @@ export const fetchCourseProgress = async (courseSlug, signal) => {
 
 // Progress for every course the user has started
 export const fetchMyProgress = async (signal) => {
-    let res = await fetch(`http://localhost:5000/api/course-progress/my-progress`, {
+    let res = await fetch(`${API_URL}/api/course-progress/my-progress`, {
         headers: headers(),
         signal,
     });
     if (!res.ok && res.status === 404) {
-        res = await fetch(`http://localhost:5000/api/progress/my-progress`, {
+        res = await fetch(`${API_URL}/api/progress/my-progress`, {
             headers: headers(),
             signal,
         });

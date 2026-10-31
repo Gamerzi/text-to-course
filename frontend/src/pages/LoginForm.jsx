@@ -1,3 +1,4 @@
+import { API_URL } from "../config.js";
 
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -38,7 +39,7 @@ export default function LoginForm({ onSwitch }) {
 
         try {
             const response = await fetch(
-                "http://localhost:5000/api/users/login",
+                `${API_URL}/api/users/login`,
                 {
                     method: "POST",
                     headers: {

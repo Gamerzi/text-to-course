@@ -1,3 +1,4 @@
+import { API_URL } from "../config.js";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ProgressBar } from "../components/ProgressBar";
@@ -6,7 +7,7 @@ import { getTopicLogo } from "../utils/topicHelpers.js";
 
 import "../styles/CourseDetails.css";
 
-const API_BASE = "http://localhost:5000/api/courses";
+const API_BASE = `${API_URL}/api/courses`;
 
 /* Animated number counter */
 function CountUp({ value, duration = 900 }) {
@@ -121,12 +122,12 @@ export default function CourseDetails() {
                 // Load course progress directly
                 try {
                     let pRes = await fetch(
-                        `http://localhost:5000/api/course-progress/${encodeURIComponent(courseSlug)}`,
+                        `${API_URL}/api/course-progress/${encodeURIComponent(courseSlug)}`,
                         { signal: controller.signal, headers: getHeaders() }
                     );
                     if (!pRes.ok) {
                         pRes = await fetch(
-                            `http://localhost:5000/api/progress/${encodeURIComponent(courseSlug)}`,
+                            `${API_URL}/api/progress/${encodeURIComponent(courseSlug)}`,
                             { signal: controller.signal, headers: getHeaders() }
                         );
                     }

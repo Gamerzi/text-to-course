@@ -1,8 +1,9 @@
+import { API_URL } from "../config.js";
 import React, { useState, useEffect, useMemo, memo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import '../styles/QuizPage.css';
 
-const API_BASE = "http://localhost:5000/api/courses";
+const API_BASE = `${API_URL}/api/courses`;
 const OPTION_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F'];
 
 /* =====================================================

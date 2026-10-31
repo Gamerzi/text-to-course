@@ -1,10 +1,11 @@
+import { API_URL } from "../config.js";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { ProgressBar } from "../components/ProgressBar";
 import { useNavigate } from "react-router-dom";
 import CourseChatWidget from "../components/Coursechatwidget";
 import "../styles/Course.css";
 
-const API_BASE = "http://localhost:5000/api/courses";
+const API_BASE = `${API_URL}/api/courses`;
 const TOKEN_KEY = "token";
 
 const TOPIC_RULES = [
@@ -355,12 +356,12 @@ export default function Course({ onOpenCourse, currentUserId }) {
 
             // Fetch progress for dashboard cards & stats
             try {
-                let pRes = await fetch("http://localhost:5000/api/course-progress/my-progress", {
+                let pRes = await fetch(`${API_URL}/api/course-progress/my-progress`, {
                     signal,
                     headers,
                 });
                 if (!pRes.ok) {
-                    pRes = await fetch("http://localhost:5000/api/progress/my-progress", {
+                    pRes = await fetch(`${API_URL}/api/progress/my-progress`, {
                         signal,
                         headers,
                     });

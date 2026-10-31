@@ -1,8 +1,9 @@
+import { API_URL } from "../config.js";
 import { useEffect, useRef, useState } from "react";
 import robotVideo from "../assets/videos/robot.mp4";
-import "../styles/CoursechatWidget.css";
+import "../styles/Coursechatwidget.css";
 
-const API_BASE = "http://localhost:5000/api/courses";
+const API_BASE = `${API_URL}/api/courses`;
 const TOKEN_KEY = "token";
 
 const SUGGESTIONS = [
